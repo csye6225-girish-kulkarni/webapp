@@ -1,4 +1,4 @@
-package health
+package controller
 
 import (
 	"Health-Check/service"
@@ -7,21 +7,17 @@ import (
 	"net/http"
 )
 
-type Controller interface {
-	GetHealth(context *gin.Context)
+type healthController struct {
+	healthService service.Service
 }
 
-type healthContoller struct {
-	healthService *service.HealthService
-}
-
-func NewHealthController(hs *service.HealthService) Controller {
-	return &healthContoller{
+func NewHealthController(hs service.Service) Controller {
+	return &healthController{
 		healthService: hs,
 	}
 }
 
-func (c *healthContoller) GetHealth(ctx *gin.Context) {
+func (c *healthController) GetHealth(ctx *gin.Context) {
 	ctx.Header("cache-control", "no-cache")
 	// Request Payload validation
 	if ctx.Request.ContentLength > 0 {
