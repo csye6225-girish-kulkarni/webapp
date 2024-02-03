@@ -1,7 +1,7 @@
 package router
 
 import (
-	"Health-Check/controller/health"
+	"Health-Check/controller"
 	"Health-Check/db"
 	"Health-Check/service"
 	"github.com/gin-contrib/cors"
@@ -23,7 +23,7 @@ func InitializeRouter() *gin.Engine {
 
 	healthService := service.NewHealthService(postgresRepo)
 
-	healthController := health.NewHealthController(healthService)
+	healthController := controller.NewHealthController(healthService)
 	router.GET("/healthz", healthController.GetHealth)
 
 	router.Use(func(context *gin.Context) {
