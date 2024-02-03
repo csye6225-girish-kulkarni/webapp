@@ -37,7 +37,7 @@ func (c *healthContoller) GetHealth(ctx *gin.Context) {
 
 	err := c.healthService.Ping(ctx)
 	if err != nil {
-		log.Println("Unable to Ping to DB err : %v", err)
+		log.Printf("Unable to Ping to DB err : %v", err)
 		ctx.Status(http.StatusServiceUnavailable)
 		return
 	}
