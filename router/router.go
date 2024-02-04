@@ -22,10 +22,11 @@ func InitializeRouter() *gin.Engine {
 	postgresRepo := db.NewPostgreSQL(connString)
 
 	healthService := service.NewHealthService(postgresRepo)
-
+	userService := service.NewUserService(postgresRepo)
+	userController := controller.NewUserController(userService)
 	healthController := controller.NewHealthController(healthService)
-	router.GET("/healthz", healthController.GetHealth)
 
+	router.GET("/healthz", healthController.GetHealth)
 	router.Use(func(context *gin.Context) {
 		if context.Request.URL.Path == "/healthz" && context.Request.Method != http.MethodGet {
 			context.Status(http.StatusMethodNotAllowed)
@@ -33,6 +34,7 @@ func InitializeRouter() *gin.Engine {
 		}
 	})
 
+	router.POST("/v1/user", userController.CreateUser)
 	router.NoRoute(func(context *gin.Context) {
 		context.Data(http.StatusNotFound, "text/plain", []byte{})
 		context.Abort()

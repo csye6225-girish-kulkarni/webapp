@@ -1,6 +1,7 @@
 package db
 
 import (
+	"Health-Check/types"
 	"errors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -32,6 +33,15 @@ func (pg *PostgreSQL) connectWithRetry(connStr string) {
 		if err == nil {
 			pg.DB = db
 			log.Println("Database connection established")
+			// Adding the UUID extension to the database
+			db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"")
+
+			err = db.AutoMigrate(&types.User{})
+			if err != nil {
+				log.Printf("Error while migrating the table: %v", err)
+				return
+			}
+			log.Println("User table migrated successfully")
 			return
 		}
 		log.Printf("Attempt %d: could not connect to database: %v", i, err)
@@ -55,4 +65,15 @@ func (p *PostgreSQL) Ping(ctx *gin.Context) error {
 	}
 
 	return nil
+}
+
+func (p *PostgreSQL) Create(ctx *gin.Context, user types.User) (types.User, error) {
+	if p == nil || p.DB == nil {
+		return types.User{}, errors.New("DB object is not initialized")
+	}
+
+	if err := p.DB.Create(&user).Error; err != nil {
+		return types.User{}, err
+	}
+	return user, nil
 }
