@@ -7,11 +7,15 @@ import (
 	"net/http"
 )
 
+type HealthController interface {
+	GetHealth(ctx *gin.Context)
+}
+
 type healthController struct {
 	healthService service.Service
 }
 
-func NewHealthController(hs service.Service) Controller {
+func NewHealthController(hs service.Service) HealthController {
 	return &healthController{
 		healthService: hs,
 	}
