@@ -1,12 +1,13 @@
 package repository
 
 import (
-	"Health-Check/types"
 	"github.com/gin-gonic/gin"
+	"webapp/types"
 )
 
 type UserRepo interface {
 	Ping(ctx *gin.Context) error
-	Create(ctx *gin.Context, user types.User) (types.User, error)
+	CreateUser(ctx *gin.Context, user types.User) (types.User, error)
 	GetByUsername(ctx *gin.Context, username string) (types.User, error)
+	UpdateUser(ctx *gin.Context, user types.User) (types.User, error)
 }
