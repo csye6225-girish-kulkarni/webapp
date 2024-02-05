@@ -21,7 +21,7 @@ func NewHealthController(hs service.Service) HealthController {
 	}
 }
 
-func (c *healthController) GetHealth(ctx *gin.Context) {
+func (hs *healthController) GetHealth(ctx *gin.Context) {
 	ctx.Header("cache-control", "no-cache")
 	// Request Payload validation
 	if ctx.Request.ContentLength > 0 {
@@ -35,7 +35,7 @@ func (c *healthController) GetHealth(ctx *gin.Context) {
 		return
 	}
 
-	err := c.healthService.Ping(ctx)
+	err := hs.healthService.Ping(ctx)
 	if err != nil {
 		log.Printf("Unable to Ping to DB err : %v", err)
 		ctx.Status(http.StatusServiceUnavailable)
