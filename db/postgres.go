@@ -1,7 +1,6 @@
 package db
 
 import (
-	"Health-Check/types"
 	"errors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -10,6 +9,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"time"
+	"webapp/types"
 )
 
 type PostgreSQL struct {
@@ -67,7 +67,7 @@ func (p *PostgreSQL) Ping(ctx *gin.Context) error {
 	return nil
 }
 
-func (p *PostgreSQL) Create(ctx *gin.Context, user types.User) (types.User, error) {
+func (p *PostgreSQL) CreateUser(ctx *gin.Context, user types.User) (types.User, error) {
 	if p == nil || p.DB == nil {
 		return types.User{}, errors.New("DB object is not initialized")
 	}
@@ -86,6 +86,22 @@ func (p *PostgreSQL) GetByUsername(ctx *gin.Context, username string) (types.Use
 	var user types.User
 	if err := p.DB.Where("username = ?", username).First(&user).Error; err != nil {
 		log.Printf("Error getting the user by username : %v", err)
+		return types.User{}, err
+	}
+	return user, nil
+}
+
+func (p *PostgreSQL) UpdateUser(ctx *gin.Context, user types.User) (types.User, error) {
+	if p == nil || p.DB == nil {
+		return types.User{}, errors.New("DB object is not initialized")
+	}
+	u, ok := ctx.Get("user")
+	if !ok {
+		return types.User{}, errors.New("user not found in context")
+	}
+	existingUser := u.(types.User)
+
+	if err := p.DB.Model(&existingUser).Updates(user).Error; err != nil {
 		return types.User{}, err
 	}
 	return user, nil

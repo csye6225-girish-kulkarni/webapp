@@ -1,15 +1,15 @@
 package router
 
 import (
-	"Health-Check/controller"
-	"Health-Check/db"
-	"Health-Check/middleware"
-	"Health-Check/service"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"net/http"
 	"os"
+	"webapp/controller"
+	"webapp/db"
+	"webapp/middleware"
+	"webapp/service"
 )
 
 func InitializeRouter() *gin.Engine {
@@ -36,6 +36,7 @@ func InitializeRouter() *gin.Engine {
 	})
 
 	router.GET("/v1/user", middleware.BasicAuth(userService), userController.GetUser)
+	router.PUT("/v1/user/self", middleware.BasicAuth(userService), userController.UpdateUser)
 
 	router.POST("/v1/user", userController.CreateUser)
 	router.NoRoute(func(context *gin.Context) {

@@ -1,8 +1,8 @@
 package service
 
 import (
-	"Health-Check/repository"
 	"github.com/gin-gonic/gin"
+	"webapp/repository"
 )
 
 type Service interface {

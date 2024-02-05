@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"Health-Check/service"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"webapp/service"
 )
 
 type HealthController interface {

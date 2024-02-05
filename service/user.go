@@ -1,11 +1,13 @@
 package service
 
 import (
-	"Health-Check/repository"
-	"Health-Check/types"
+	"errors"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
+	"webapp/apperror"
+	"webapp/repository"
+	"webapp/types"
 )
 
 type userService struct {
@@ -42,7 +44,7 @@ func (us *userService) CreateUser(ctx *gin.Context, userRequest types.UserReques
 		Password:  string(hashedPassword),
 	}
 
-	updatedUser, err := us.repo.Create(ctx, user)
+	updatedUser, err := us.repo.CreateUser(ctx, user)
 	if err != nil {
 		log.Errorf("Error creating the user : %v", err)
 		return types.UserResponse{}, err
@@ -69,7 +71,7 @@ func (us *userService) ValidateUser(ctx *gin.Context, username, password string)
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		log.Errorf("Error comparing the password : %v", err)
-		return false, types.User{}, err
+		return false, types.User{}, apperror.ErrIncorrectPassword
 	}
 
 	return true, user, nil
@@ -92,7 +94,7 @@ func (us *userService) UpdateUser(ctx *gin.Context, userRequest types.UserReques
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userRequest.Password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Errorf("Error hashing the password : %v", err)
-		return types.UserResponse{}, err
+		return types.UserResponse{}, errors.New("incorrect password")
 	}
 
 	user = types.User{
@@ -102,13 +104,13 @@ func (us *userService) UpdateUser(ctx *gin.Context, userRequest types.UserReques
 		Password:  string(hashedPassword),
 	}
 
-	updatedUser, err := us.repo.Create(ctx, user)
+	updatedUser, err := us.repo.UpdateUser(ctx, user)
 	if err != nil {
-		log.Errorf("Error creating the user : %v", err)
+		log.Errorf("Error updating the user : %v", err)
 		return types.UserResponse{}, err
 	}
 
-	log.Println("User created successfully")
+	log.Println("User Updated successfully")
 	return types.UserResponse{
 		Username:  updatedUser.Username,
 		FirstName: updatedUser.FirstName,

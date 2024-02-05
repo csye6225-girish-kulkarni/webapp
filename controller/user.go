@@ -1,14 +1,14 @@
 package controller
 
 import (
-	"Health-Check/service"
-	"Health-Check/types"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	"net/http"
+	"webapp/service"
+	"webapp/types"
 )
 
 type UserController interface {
@@ -31,7 +31,7 @@ func (uc *userController) CreateUser(ctx *gin.Context) {
 	var request types.UserRequest
 	err := ctx.ShouldBindBodyWith(&request, binding.JSON)
 	if err != nil {
-		log.Printf("Bad Request with error : %v", err.Error())
+		log.Printf("Bad Request with apperror : %v", err.Error())
 		ctx.Status(http.StatusBadRequest)
 		return
 	}
@@ -42,7 +42,7 @@ func (uc *userController) CreateUser(ctx *gin.Context) {
 			ctx.JSON(http.StatusBadRequest, gin.H{"message": "User already exists"})
 			return
 		}
-		log.Printf("Failed to create user with error : %v", err.Error())
+		log.Printf("Failed to create user with apperror : %v", err.Error())
 		ctx.Status(http.StatusInternalServerError)
 		return
 	}
@@ -55,7 +55,7 @@ func (uc *userController) GetUser(ctx *gin.Context) {
 	var (
 		response types.UserResponse
 	)
-	if ctx.Request.Body == http.NoBody {
+	if ctx.Request.Body != http.NoBody {
 		log.Println("Request has a payload")
 		ctx.AbortWithStatus(http.StatusBadRequest)
 		return
@@ -87,21 +87,34 @@ func (uc *userController) GetUser(ctx *gin.Context) {
 }
 
 func (uc *userController) UpdateUser(ctx *gin.Context) {
-	var request types.UserRequest
+	var (
+		request types.UserRequest
+	)
 	err := ctx.ShouldBindBodyWith(&request, binding.JSON)
 	if err != nil {
-		log.Printf("Bad Request with error : %v", err.Error())
+		log.Printf("Bad Request with apperror : %v", err.Error())
 		ctx.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	response, err := uc.userService.UpdateUser(ctx, request)
+	// Validating if the user passed the same username as the one in the token
+	user, ok := ctx.Get("user")
+	if !ok {
+		ctx.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+	if user.(types.User).Username != request.Username {
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	_, err = uc.userService.UpdateUser(ctx, request)
 	if err != nil {
-		log.Printf("Failed to update user with error : %v", err.Error())
+		log.Printf("Failed to update user with apperror : %v", err.Error())
 		ctx.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, response)
+	ctx.Status(http.StatusNoContent)
 	return
 }
