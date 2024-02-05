@@ -77,3 +77,16 @@ func (p *PostgreSQL) Create(ctx *gin.Context, user types.User) (types.User, erro
 	}
 	return user, nil
 }
+
+func (p *PostgreSQL) GetByUsername(ctx *gin.Context, username string) (types.User, error) {
+	if p == nil || p.DB == nil {
+		return types.User{}, errors.New("DB object is not initialized")
+	}
+
+	var user types.User
+	if err := p.DB.Where("username = ?", username).First(&user).Error; err != nil {
+		log.Printf("Error getting the user by username : %v", err)
+		return types.User{}, err
+	}
+	return user, nil
+}

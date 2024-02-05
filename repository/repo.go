@@ -8,4 +8,5 @@ import (
 type UserRepo interface {
 	Ping(ctx *gin.Context) error
 	Create(ctx *gin.Context, user types.User) (types.User, error)
+	GetByUsername(ctx *gin.Context, username string) (types.User, error)
 }

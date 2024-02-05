@@ -3,6 +3,7 @@ package router
 import (
 	"Health-Check/controller"
 	"Health-Check/db"
+	"Health-Check/middleware"
 	"Health-Check/service"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -33,6 +34,8 @@ func InitializeRouter() *gin.Engine {
 			context.Abort()
 		}
 	})
+
+	router.GET("/v1/user", middleware.BasicAuth(userService), userController.GetUser)
 
 	router.POST("/v1/user", userController.CreateUser)
 	router.NoRoute(func(context *gin.Context) {
