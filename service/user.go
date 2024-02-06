@@ -18,7 +18,7 @@ type UserService interface {
 	CreateUser(ctx *gin.Context, userRequest types.UserRequest) (types.UserResponse, error)
 	ValidateUser(ctx *gin.Context, username, password string) (bool, types.User, error)
 	GetUserByUsername(ctx *gin.Context, username string) (types.User, error)
-	UpdateUser(ctx *gin.Context, userRequest types.UserRequest) (types.UserResponse, error)
+	UpdateUser(ctx *gin.Context, userRequest types.UpdateUserRequest) (types.UserResponse, error)
 }
 
 func NewUserService(repo repository.UserRepo) UserService {
@@ -86,7 +86,7 @@ func (us *userService) GetUserByUsername(ctx *gin.Context, username string) (typ
 	return user, nil
 }
 
-func (us *userService) UpdateUser(ctx *gin.Context, userRequest types.UserRequest) (types.UserResponse, error) {
+func (us *userService) UpdateUser(ctx *gin.Context, userRequest types.UpdateUserRequest) (types.UserResponse, error) {
 	var (
 		user types.User
 	)
@@ -98,7 +98,6 @@ func (us *userService) UpdateUser(ctx *gin.Context, userRequest types.UserReques
 	}
 
 	user = types.User{
-		Username:  userRequest.Username,
 		FirstName: userRequest.FirstName,
 		LastName:  userRequest.LastName,
 		Password:  string(hashedPassword),

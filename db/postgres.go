@@ -95,6 +95,7 @@ func (p *PostgreSQL) UpdateUser(ctx *gin.Context, user types.User) (types.User, 
 	if p == nil || p.DB == nil {
 		return types.User{}, errors.New("DB object is not initialized")
 	}
+	// The user details are stored in the context in the middleware
 	u, ok := ctx.Get("user")
 	if !ok {
 		return types.User{}, errors.New("user not found in context")

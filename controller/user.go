@@ -88,22 +88,11 @@ func (uc *userController) GetUser(ctx *gin.Context) {
 
 func (uc *userController) UpdateUser(ctx *gin.Context) {
 	var (
-		request types.UserRequest
+		request types.UpdateUserRequest
 	)
 	err := ctx.ShouldBindBodyWith(&request, binding.JSON)
 	if err != nil {
 		log.Printf("Bad Request with apperror : %v", err.Error())
-		ctx.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-
-	// Validating if the user passed the same username as the one in the token
-	user, ok := ctx.Get("user")
-	if !ok {
-		ctx.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-	if user.(types.User).Username != request.Username {
 		ctx.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
