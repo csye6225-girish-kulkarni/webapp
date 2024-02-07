@@ -1,15 +1,26 @@
 package types
 
 import (
+	"github.com/go-playground/validator/v10"
 	"github.com/gofrs/uuid"
 	"time"
 )
+
+var validate *validator.Validate
+
+func init() {
+	validate = validator.New()
+}
 
 type UserRequest struct {
 	Username  string `json:"username" validate:"required,email"`
 	Password  string `json:"password" validate:"required,min=8,max=20"`
 	FirstName string `json:"firstName" validate:"required,alpha"`
 	LastName  string `json:"lastName" validate:"required,alpha"`
+}
+
+func (ur *UserRequest) Validate() error {
+	return validate.Struct(ur)
 }
 
 type User struct {
@@ -35,4 +46,8 @@ type UpdateUserRequest struct {
 	FirstName string `json:"firstName" binding:"required"`
 	LastName  string `json:"lastName" binding:"required"`
 	Password  string `json:"password" binding:"required"`
+}
+
+func (ur *UpdateUserRequest) Validate() error {
+	return validate.Struct(ur)
 }
