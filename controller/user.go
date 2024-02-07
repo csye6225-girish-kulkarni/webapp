@@ -1,11 +1,11 @@
 package controller
 
 import (
-	"errors"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/jackc/pgx/v5/pgconn"
 	log "github.com/sirupsen/logrus"
-	"gorm.io/gorm"
 	"net/http"
 	"webapp/service"
 	"webapp/types"
@@ -38,9 +38,12 @@ func (uc *userController) CreateUser(ctx *gin.Context) {
 
 	response, err := uc.userService.CreateUser(ctx, request)
 	if err != nil {
-		if errors.Is(err, gorm.ErrDuplicatedKey) {
-			ctx.JSON(http.StatusBadRequest, gin.H{"message": "User already exists"})
-			return
+		if pqErr, ok := err.(*pgconn.PgError); ok {
+			if pqErr.Code == "23505" {
+				log.Error("Username Already Exists")
+				ctx.Status(http.StatusBadRequest)
+				return
+			}
 		}
 		log.Printf("Failed to create user with apperror : %v", err.Error())
 		ctx.Status(http.StatusInternalServerError)
@@ -90,13 +93,14 @@ func (uc *userController) UpdateUser(ctx *gin.Context) {
 	var (
 		request types.UpdateUserRequest
 	)
-	err := ctx.ShouldBindBodyWith(&request, binding.JSON)
+	j := json.NewDecoder(ctx.Request.Body)
+	j.DisallowUnknownFields()
+	err := j.Decode(&request)
 	if err != nil {
 		log.Printf("Bad Request with apperror : %v", err.Error())
-		ctx.AbortWithStatus(http.StatusBadRequest)
+		ctx.Status(http.StatusBadRequest)
 		return
 	}
-
 	_, err = uc.userService.UpdateUser(ctx, request)
 	if err != nil {
 		log.Printf("Failed to update user with apperror : %v", err.Error())

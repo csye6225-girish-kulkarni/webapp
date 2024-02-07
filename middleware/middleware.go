@@ -19,7 +19,7 @@ func BasicAuth(userService service.UserService) gin.HandlerFunc {
 					c.AbortWithStatus(http.StatusUnauthorized)
 					return
 				}
-				c.AbortWithStatus(http.StatusInternalServerError)
+				c.AbortWithStatus(http.StatusUnauthorized)
 				return
 			}
 
