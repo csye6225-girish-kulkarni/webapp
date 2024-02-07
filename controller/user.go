@@ -3,7 +3,6 @@ package controller
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/jackc/pgx/v5/pgconn"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -28,10 +27,22 @@ func NewUserController(userService service.UserService) UserController {
 }
 
 func (uc *userController) CreateUser(ctx *gin.Context) {
-	var request types.UserRequest
-	err := ctx.ShouldBindBodyWith(&request, binding.JSON)
+	var (
+		request types.UserRequest
+	)
+	// Validating If Request Payload has any unknown fields
+	j := json.NewDecoder(ctx.Request.Body)
+	j.DisallowUnknownFields()
+	err := j.Decode(&request)
 	if err != nil {
-		log.Printf("Bad Request with apperror : %v", err.Error())
+		log.Printf("Bad Request with error : %v", err.Error())
+		ctx.Status(http.StatusBadRequest)
+		return
+	}
+	// Validating the Content of the Request
+	err = request.Validate()
+	if err != nil {
+		log.Printf("Bad Request with error : %v", err.Error())
 		ctx.Status(http.StatusBadRequest)
 		return
 	}
@@ -100,17 +111,26 @@ func (uc *userController) UpdateUser(ctx *gin.Context) {
 	var (
 		request types.UpdateUserRequest
 	)
+	// Validating If Request Payload has any unknown fields
 	j := json.NewDecoder(ctx.Request.Body)
 	j.DisallowUnknownFields()
 	err := j.Decode(&request)
 	if err != nil {
-		log.Printf("Bad Request with apperror : %v", err.Error())
+		log.Printf("Bad Request with error : %v", err.Error())
 		ctx.Status(http.StatusBadRequest)
 		return
 	}
+	// Validating the Content of the Request
+	err = request.Validate()
+	if err != nil {
+		log.Printf("Bad Request with error : %v", err.Error())
+		ctx.Status(http.StatusBadRequest)
+		return
+	}
+
 	_, err = uc.userService.UpdateUser(ctx, request)
 	if err != nil {
-		log.Printf("Failed to update user with apperror : %v", err.Error())
+		log.Printf("Failed to update user with error : %v", err.Error())
 		ctx.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}

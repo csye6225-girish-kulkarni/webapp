@@ -22,7 +22,6 @@ func NewHealthController(hs service.Service) HealthController {
 }
 
 func (hs *healthController) GetHealth(ctx *gin.Context) {
-	ctx.Header("cache-control", "no-cache")
 	// Request Payload validation
 	if ctx.Request.ContentLength > 0 {
 		log.Println("Request has a payload")

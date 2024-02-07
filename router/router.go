@@ -17,6 +17,7 @@ func InitializeRouter() *gin.Engine {
 	router.Use(cors.Default())
 	// Recovery middleware recovers from any panics and writes a 500 if there was one.
 	router.Use(gin.Recovery())
+	router.Use(middleware.SetNoCacheHeader())
 
 	connString := os.Getenv("POSTGRES_CONN_STR")
 	connString = connString + "?sslmode=disable"
@@ -27,7 +28,7 @@ func InitializeRouter() *gin.Engine {
 	userController := controller.NewUserController(userService)
 	healthController := controller.NewHealthController(healthService)
 
-	router.GET("/healthz", healthController.GetHealth)
+	router.GET("/healthz", middleware.CheckNoAuthEndpoints(), healthController.GetHealth)
 	router.Use(func(context *gin.Context) {
 		if context.Request.URL.Path == "/healthz" && context.Request.Method != http.MethodGet {
 			context.Status(http.StatusMethodNotAllowed)
@@ -38,7 +39,7 @@ func InitializeRouter() *gin.Engine {
 	router.GET("/v1/user", middleware.BasicAuth(userService), userController.GetUser)
 	router.PUT("/v1/user/self", middleware.BasicAuth(userService), userController.UpdateUser)
 
-	router.POST("/v1/user", userController.CreateUser)
+	router.POST("/v1/user", middleware.CheckNoAuthEndpoints(), userController.CreateUser)
 	router.NoRoute(func(context *gin.Context) {
 		context.Data(http.StatusNotFound, "text/plain", []byte{})
 		context.Abort()
