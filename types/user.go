@@ -51,7 +51,3 @@ type UpdateUserRequest struct {
 func (ur *UpdateUserRequest) Validate() error {
 	return validate.Struct(ur)
 }
-
-func (ur *UpdateUserRequest) Validate() error {
-	return validate.Struct(ur)
-}
