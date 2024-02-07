@@ -36,6 +36,13 @@ func (uc *userController) CreateUser(ctx *gin.Context) {
 		return
 	}
 
+	err = request.Validate()
+	if err != nil {
+		log.Printf("Bad Request with apperror : %v", err.Error())
+		ctx.Status(http.StatusBadRequest)
+		return
+	}
+
 	response, err := uc.userService.CreateUser(ctx, request)
 	if err != nil {
 		if pqErr, ok := err.(*pgconn.PgError); ok {
