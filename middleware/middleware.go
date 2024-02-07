@@ -35,3 +35,20 @@ func BasicAuth(userService service.UserService) gin.HandlerFunc {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
 }
+
+func SetNoCacheHeader() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		context.Header("cache-control", "no-cache")
+		context.Next()
+	}
+}
+
+func CheckNoAuthEndpoints() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		if context.GetHeader("Authorization") != "" {
+			context.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+		context.Next()
+	}
+}

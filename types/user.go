@@ -43,9 +43,9 @@ type UserResponse struct {
 }
 
 type UpdateUserRequest struct {
-	FirstName string `json:"firstName" binding:"required"`
-	LastName  string `json:"lastName" binding:"required"`
-	Password  string `json:"password" binding:"required"`
+	FirstName string `json:"firstName" validate:"required"`
+	LastName  string `json:"lastName" validate:"required"`
+	Password  string `json:"password" validate:"required"`
 }
 
 func (ur *UpdateUserRequest) Validate() error {
