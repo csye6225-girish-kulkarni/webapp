@@ -6,10 +6,10 @@ import (
 )
 
 type UserRequest struct {
-	Username  string `json:"username" validate:"required"`
-	Password  string `json:"password" validate:"required"`
-	FirstName string `json:"firstName" validate:"required"`
-	LastName  string `json:"lastName" validate:"required"`
+	Username  string `json:"username" validate:"required,email"`
+	Password  string `json:"password" validate:"required,min=8,max=20"`
+	FirstName string `json:"firstName" validate:"required,alpha"`
+	LastName  string `json:"lastName" validate:"required,alpha"`
 }
 
 type User struct {
@@ -32,7 +32,7 @@ type UserResponse struct {
 }
 
 type UpdateUserRequest struct {
-	FirstName string `json:"firstName" validate:"required"`
-	LastName  string `json:"lastName" validate:"required"`
-	Password  string `json:"password" validate:"required"`
+	FirstName string `json:"firstName" binding:"required"`
+	LastName  string `json:"lastName" binding:"required"`
+	Password  string `json:"password" binding:"required"`
 }
