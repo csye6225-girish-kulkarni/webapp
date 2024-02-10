@@ -29,5 +29,5 @@ jobs:
         run: go get .
       - name: Test
         env:
-          POSTGRES_CONN_STR_TEST: ${{ env.POSTGRES_CONN_STR_TEST }}
+          POSTGRES_CONN_STR_TEST: ${{ vars.POSTGRES_CONN_STR_TEST }}
         run: go test -v ./...
