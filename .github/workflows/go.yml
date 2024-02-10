@@ -47,5 +47,5 @@ jobs:
         run: go get .
       - name: Test
         env:
-          POSTGRES_CONN_STR_TEST: ${{ env.POSTGRES_CONN_STR_TEST }}
+          POSTGRES_CONN_STR_TEST: "postgres://postgres:postgres@localhost:5432/postgres"
         run: go test -v ./...
