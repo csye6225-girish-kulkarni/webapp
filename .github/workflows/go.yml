@@ -21,5 +21,31 @@ jobs:
         run: go get .
       - name: Build
         run: go build -v ./...
-      - name: Test with the Go CLI
-        run: go test  ./...
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+
+    services:
+        postgres:
+          image: postgres:latest
+          env:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: postgres
+          ports:
+            - 5432:5432
+          options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21.6'
+      - name: Install dependencies
+        run: go get .
+      - name: Test
+        env:
+          POSTGRES_CONN_STR_TEST: ${{ secrets.POSTGRES_CONN_STR_TEST }}
+        run: go test -v ./...
