@@ -7,7 +7,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    environment: dev
+    environment: Dev
 
     services:
       postgres:
