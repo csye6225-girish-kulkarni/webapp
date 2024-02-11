@@ -10,4 +10,6 @@ type UserRepo interface {
 	CreateUser(ctx *gin.Context, user types.User) (types.User, error)
 	GetByUsername(ctx *gin.Context, username string) (types.User, error)
 	UpdateUser(ctx *gin.Context, user types.User) (types.User, error)
+	Close() error
+	//Exec(query string, args ...interface{}) error
 }
