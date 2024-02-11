@@ -7,13 +7,14 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    environment: dev
 
     services:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: postgres
         ports:
           - 5432:5432
@@ -29,5 +30,5 @@ jobs:
         run: go get .
       - name: Test
         env:
-          POSTGRES_CONN_STR_TEST: ${{ vars.POSTGRES_CONN_STR_TEST }}
+          POSTGRES_CONN_STR_TEST: ${{ secrets.POSTGRES_CONN_STR_TEST }}
         run: go test -v ./...
