@@ -13,17 +13,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Packer
-        run: |
-          curl -o packer.zip https://releases.hashicorp.com/packer/1.7.8/packer_1.7.8_linux_amd64.zip
-          unzip packer.zip
-          sudo mv packer /usr/local/bin/
+      - name: Setup `packer`
+        uses: hashicorp/setup-packer@main
+        id: setup
+
+      - name: Run `packer init`
+        id: init
+        run: "packer init ./packer/packer.pkr.hcl"
 
       - name: Run packer fmt
         run: |
-          packer fmt -check
-
-      - name: Run packer validate
-        run: |
+          cd ./packer
+          packer fmt -check .
           packer validate .
-

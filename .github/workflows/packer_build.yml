@@ -40,7 +40,7 @@ jobs:
           name: go-binary
           path: ./webapp
       - name: Copy Go binary to Packer directory
-        run: cp ./webapp /packer/
+        run: cp ./webapp ./packer/
 
       - id: 'auth'
         uses: 'google-github-actions/auth@v2'
@@ -52,11 +52,13 @@ jobs:
         with:
           version: '>= 390.0.0'
 
-      - name: Install Packer
-        run: |
-          curl -o packer.zip https://releases.hashicorp.com/packer/1.7.8/packer_1.7.8_linux_amd64.zip
-          unzip packer.zip
-          sudo mv packer /usr/local/bin/
+      - name: Setup `packer`
+        uses: hashicorp/setup-packer@main
+        id: setup
+
+      - name: Run `packer init`
+        id: init
+        run: "packer init ./packer/packer.pkr.hcl"
 
       - name: Build Packer image
         env:
@@ -64,5 +66,5 @@ jobs:
 #          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
 #          POSTGRES_CONN_STR_TEST: ${{ secrets.POSTGRES_CONN_STR_TEST }}
         run: |
-          cd packer
+          cd ./packer
           packer build .

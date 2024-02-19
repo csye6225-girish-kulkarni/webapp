@@ -12,17 +12,17 @@ locals {
 }
 
 source "googlecompute" "webapp-image" {
-  project_id              = var.gcp_project_id
-  source_image_family     = "centos-stream-8"
-  ssh_username            = "centos"
-  image_name              = "webapp-image-${local.timestamp}"
-#  image_family            = "webapp-image"
-  zone                    = var.gcp_zone
-#  machine_type            = var.gcp_machine_type
-  disk_size               = var.gcp_disk_size
-  disk_type               = var.gcp_disk_type
-#  network                 = var.gcp_network
-#  subnetwork              = var.gcp_subnetwork
+  project_id          = var.gcp_project_id
+  source_image_family = "centos-stream-8"
+  ssh_username        = "centos"
+  image_name          = "webapp-image-${local.timestamp}"
+  #  image_family            = "webapp-image"
+  zone = var.gcp_zone
+  #  machine_type            = var.gcp_machine_type
+  disk_size = var.gcp_disk_size
+  disk_type = var.gcp_disk_type
+  #  network                 = var.gcp_network
+  #  subnetwork              = var.gcp_subnetwork
 }
 
 build {
