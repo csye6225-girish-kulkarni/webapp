@@ -44,15 +44,15 @@ variable "gcp_subnetwork" {
 variable "postgres_user" {
   type        = string
   description = "The PostgreSQL username"
-#  sensitive   = true
-  default     = "girish"
+  #  sensitive   = true
+  default = "girish"
 }
 
 variable "postgres_password" {
   type        = string
   description = "The PostgreSQL password"
-#  sensitive   = true
-  default     = "test1234"
+  #  sensitive   = true
+  default = "test1234"
 }
 
 variable "postgres_conn_str" {
