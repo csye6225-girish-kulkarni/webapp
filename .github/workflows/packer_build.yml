@@ -1,0 +1,68 @@
+name: Packer Build and Validate
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-go-binary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21.6'
+      - name: Create webapp directory
+        run: mkdir -p ./webapp
+      - name: Install dependencies
+        run: go get .
+      - name: Build
+        run: go build -v -o webapp ./...
+      - name: Upload Go binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: go-binary
+          path: ./webapp
+
+
+  build-packer-image:
+    environment: Dev
+    needs: build-go-binary
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Download Go binary
+        uses: actions/download-artifact@v4
+        with:
+          name: go-binary
+          path: ./webapp
+      - name: Copy Go binary to Packer directory
+        run: cp ./webapp /packer/
+
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2.1.0
+        with:
+          version: '>= 390.0.0'
+
+      - name: Install Packer
+        run: |
+          curl -o packer.zip https://releases.hashicorp.com/packer/1.7.8/packer_1.7.8_linux_amd64.zip
+          unzip packer.zip
+          sudo mv packer /usr/local/bin/
+
+      - name: Build Packer image
+        env:
+#          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+#          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+#          POSTGRES_CONN_STR_TEST: ${{ secrets.POSTGRES_CONN_STR_TEST }}
+        run: |
+          cd packer
+          packer build .
