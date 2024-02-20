@@ -30,9 +30,6 @@ jobs:
       - name : Set environment variables
         run: |
           echo "POSTGRES_CONN_STR=${{ secrets.POSTGRES_CONN_STR }}" >> ./packer/webapp.env
-        env:
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
 
       - id: 'auth'
         uses: 'google-github-actions/auth@v2'
@@ -55,4 +52,4 @@ jobs:
       - name: Build Packer image
         run: |
           cd ./packer
-          packer build .
+          packer build -var 'postgres_user=${{ secrets.POSTGRES_USER }}' -var 'postgres_password=${{ secrets.POSTGRES_PASSWORD }}' .
