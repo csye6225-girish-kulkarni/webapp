@@ -5,7 +5,6 @@ After=network.target
 
 [Service]
 EnvironmentFile=/usr/bin/webapp.env
-#Environment="POSTGRES_CONN_STR=postgresql://girish:test1234@localhost:5432/postgres"
 User=csye6225
 Group=csye6225
 WorkingDirectory=/usr/bin/

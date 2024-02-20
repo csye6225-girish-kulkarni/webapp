@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Update the system
-#sudo dnf update -y
-
 # Install wget and tar to fetch and extract Go
 sudo dnf install -y wget tar
 
