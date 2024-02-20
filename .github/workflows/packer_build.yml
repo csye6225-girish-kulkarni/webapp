@@ -63,7 +63,7 @@ jobs:
         run: "packer init ./packer/packer.pkr.hcl"
 
       - name: Build Packer image
-        env:
+#        env:
 #          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
 #          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
 #          POSTGRES_CONN_STR_TEST: ${{ secrets.POSTGRES_CONN_STR_TEST }}
