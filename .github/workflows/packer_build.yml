@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-go-binary:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,55 +16,27 @@ jobs:
           go-version: '1.21.6'
       - name: Install dependencies
         run: go get .
-      - name: Build
+      - name: Build Go binary
         run: GOOS=linux GOARCH=amd64 go build -o webapp
-      - name: Upload Go binary
-        uses: actions/upload-artifact@v4
-        with:
-          name: go-binary
-          path: ./webapp
-
-
-  build-packer-image:
-    environment: Dev
-    needs: build-go-binary
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Download Go binary
-        uses: actions/download-artifact@v4
-        with:
-          name: go-binary
-          path: ./webapp
       - name: Copy Go binary to Packer directory
         run: |
-          rm ./packer/webapp
+          rm -f ./packer/webapp
           cp ./webapp ./packer/
-
       - id: 'auth'
         uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
-
       - name: Setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2.1.0
         with:
           version: '>= 390.0.0'
-
       - name: Setup `packer`
         uses: hashicorp/setup-packer@main
         id: setup
-
       - name: Run `packer init`
         id: init
         run: "packer init ./packer/packer.pkr.hcl"
-
       - name: Build Packer image
-#        env:
-#          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-#          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-#          POSTGRES_CONN_STR_TEST: ${{ secrets.POSTGRES_CONN_STR_TEST }}
         run: |
           cd ./packer
           packer build .
