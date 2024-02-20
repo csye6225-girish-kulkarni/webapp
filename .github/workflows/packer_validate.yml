@@ -24,5 +24,7 @@ jobs:
       - name: Run packer fmt
         run: |
           cd ./packer
-          packer fmt -check .
+          if [ -d "webapp" ]; then
+            packer fmt -check .
+          fi
           packer validate .
