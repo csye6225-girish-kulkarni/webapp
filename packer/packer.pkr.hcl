@@ -16,13 +16,9 @@ source "googlecompute" "webapp-image" {
   source_image_family = "centos-stream-8"
   ssh_username        = "centos"
   image_name          = "webapp-image-${local.timestamp}"
-  #  image_family            = "webapp-image"
-  zone = var.gcp_zone
-  #  machine_type            = var.gcp_machine_type
-  disk_size = var.gcp_disk_size
-  disk_type = var.gcp_disk_type
-  #  network                 = var.gcp_network
-  #  subnetwork              = var.gcp_subnetwork
+  zone                = var.gcp_zone
+  disk_size           = var.gcp_disk_size
+  disk_type           = var.gcp_disk_type
 }
 
 build {
@@ -54,14 +50,24 @@ build {
   }
 
   provisioner "file" {
+    source      = "./webapp.env"
+    destination = "/tmp/webapp.env"
+  }
+
+  provisioner "shell" {
+    inline = [
+      "sudo mv /tmp/webapp.env /usr/bin/",
+      "sudo chown csye6225:csye6225 /usr/bin/webapp.env",
+      "sudo chmod 644 /usr/bin/webapp.env"
+    ]
+  }
+
+  provisioner "file" {
     source      = "./webapp.service"
     destination = "/tmp/webapp.service"
   }
 
   provisioner "shell" {
-    environment_vars = [
-      "POSTGRES_CONN_STR=${var.postgres_conn_str}",
-    ]
     script = "./systemd_config.sh"
   }
 }
