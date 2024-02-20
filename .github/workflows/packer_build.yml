@@ -23,6 +23,9 @@ jobs:
         run: |
           rm -f ./packer/webapp
           cp ./webapp ./packer/
+      - name : Get environment variables
+        run: |
+          echo "POSTGRES_CONN_STR=${{ secrets.POSTGRES_CONN_STR }}" >> ./packer/webapp.env
       - id: 'auth'
         uses: 'google-github-actions/auth@v2'
         with:
