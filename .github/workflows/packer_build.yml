@@ -15,31 +15,43 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: '1.21.6'
+
       - name: Install dependencies
         run: go get .
+
       - name: Build Go binary
         run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o webapp main.go
+
       - name: Copy Go binary to Packer directory
         run: |
           rm -f ./packer/webapp
           cp ./webapp ./packer/
-      - name : Get environment variables
+
+      - name : Set environment variables
         run: |
           echo "POSTGRES_CONN_STR=${{ secrets.POSTGRES_CONN_STR }}" >> ./packer/webapp.env
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+
       - id: 'auth'
         uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
       - name: Setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2.1.0
         with:
           version: '>= 390.0.0'
+
       - name: Setup `packer`
         uses: hashicorp/setup-packer@main
         id: setup
+
       - name: Run `packer init`
         id: init
         run: "packer init ./packer/packer.pkr.hcl"
+
       - name: Build Packer image
         run: |
           cd ./packer

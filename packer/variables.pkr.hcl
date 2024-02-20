@@ -26,14 +26,14 @@ variable "postgres_user" {
   type        = string
   description = "The PostgreSQL username"
   sensitive   = true
-  default     = "girish"
+  default     = env("POSTGRES_USER")
 }
 
 variable "postgres_password" {
   type        = string
   description = "The PostgreSQL password"
   sensitive   = true
-  default     = "test1234"
+  default     = env("POSTGRES_PASSWORD")
 }
 
 variable "postgres_conn_str" {

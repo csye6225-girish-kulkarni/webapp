@@ -30,7 +30,4 @@ sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE postgres TO $POSTGRES
 # Install the uuid extension
 sudo -u postgres psql -d postgres -c "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";"
 
-# Note: Directly sourcing .bashrc is not necessary for the script's operations
-# and the csye6225 user's interaction with PostgreSQL does not require changing ownership of PostgreSQL data directory.
-
 echo "PostgreSQL installation and configuration complete."
