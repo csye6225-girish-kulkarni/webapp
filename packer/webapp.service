@@ -1,0 +1,19 @@
+[Unit]
+Description=WebApp Service
+ConditionPathExists=/usr/bin/webapp
+After=network.target
+
+[Service]
+Environment="POSTGRES_CONN_STR=postgresql://girish:test1234@localhost:5432/postgres"
+User=csye6225
+Group=csye6225
+WorkingDirectory=/usr/bin/
+ExecStart=/usr/bin/webapp
+Restart=on-failure
+RestartSec=60
+
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=webapp
+[Install]
+WantedBy=multi-user.target
