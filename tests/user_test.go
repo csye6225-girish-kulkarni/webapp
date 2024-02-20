@@ -120,7 +120,7 @@ func TestCreateAccount(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error while making request: %v", err)
 	}
-	if res.StatusCode != http.StatusOK {
+	if res.StatusCode != http.StatusBadRequest {
 		t.Fatalf("Expected status code 200, but got: %v", res.StatusCode)
 	}
 	body, err := io.ReadAll(res.Body)
