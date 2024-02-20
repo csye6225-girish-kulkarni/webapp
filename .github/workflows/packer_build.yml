@@ -40,7 +40,9 @@ jobs:
           name: go-binary
           path: ./webapp
       - name: Copy Go binary to Packer directory
-        run: cp ./webapp ./packer/
+        run: |
+          rm ./packer/webapp
+          cp ./webapp ./packer/
 
       - id: 'auth'
         uses: 'google-github-actions/auth@v2'
