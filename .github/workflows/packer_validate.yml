@@ -7,7 +7,6 @@ on:
 
 jobs:
   packer-fmt-and-validate:
-    needs: test
     environment: Dev
     runs-on: ubuntu-latest
     steps:

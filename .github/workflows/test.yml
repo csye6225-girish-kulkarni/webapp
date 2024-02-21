@@ -8,7 +8,6 @@ on:
 
 jobs:
   test:
-    needs: go-build
     runs-on: ubuntu-latest
     environment: Dev
 
