@@ -22,7 +22,15 @@ jobs:
         run: "packer init ./packer/packer.pkr.hcl"
 
       - name: Run packer fmt
+        id: fmt
         run: |
+          set -e
           cd ./packer
           packer fmt .
+
+      - name: Run packer validate
+        id: validate
+        run: |
+          set -e
+          cd ./packer
           packer validate .
