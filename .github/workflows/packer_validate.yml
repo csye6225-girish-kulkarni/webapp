@@ -25,10 +25,7 @@ jobs:
         id: fmt
         run: |
           cd ./packer
-          if ! packer fmt .; then
-            echo "Packer formatting failed"
-            exit 1
-          fi  
+          packer fmt -check .
 
       - name: Run packer validate
         id: validate
