@@ -68,7 +68,7 @@ build {
     destination = "/tmp/webapp.service"
   }
 
-  provisioner "shell"   {
+  provisioner "shell" {
     script = "./systemd_config.sh"
   }
 }
