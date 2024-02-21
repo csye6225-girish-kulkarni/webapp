@@ -63,12 +63,12 @@ build {
   }
 
 
-  provisioner "file"  {
+  provisioner "file" {
     source      = "./webapp.service"
     destination = "/tmp/webapp.service"
   }
 
-  provisioner "shell" {
+  provisioner "shell"   {
     script = "./systemd_config.sh"
   }
 }

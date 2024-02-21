@@ -24,9 +24,11 @@ jobs:
       - name: Run packer fmt
         id: fmt
         run: |
-          set -e
           cd ./packer
-          packer fmt .
+          if ! packer fmt .; then
+            echo "Packer formatting failed"
+            exit 1
+          fi  
 
       - name: Run packer validate
         id: validate
