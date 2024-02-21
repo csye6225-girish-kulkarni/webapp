@@ -3,11 +3,9 @@
 # Install wget and tar to fetch and extract Go
 sudo dnf install -y wget tar
 
-# Download the specified version of Go for Linux
-GO_VERSION="1.21.6" # Update this as needed for newer versions
+GO_VERSION="1.21.6"
 wget https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz
 
-# Extract the Go tarball to /usr/local
 sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz
 
 # Clean up the downloaded tarball
