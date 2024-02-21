@@ -1,5 +1,6 @@
 #!/bin/bash
-
+echo "Updating the system..."
+sudo dnf update -y
 echo "Installing wget..."
 sudo dnf install -y wget tar
 
