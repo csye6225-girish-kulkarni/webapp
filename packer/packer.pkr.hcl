@@ -70,5 +70,5 @@ build {
 
   provisioner "shell" {
     script = "./systemd_config.sh"
-  }
+
 }
