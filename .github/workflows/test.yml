@@ -10,20 +10,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     environment: Dev
-
-
-
-#    services:
-#      postgres:
-#        image: postgres:latest
-#        env:
-#          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-#          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-#          POSTGRES_DB: postgres
-#        ports:
-#          - 5432:5432
-#        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
     steps:
       - name: Start PostgreSQL
         env:
@@ -35,7 +21,6 @@ jobs:
       - name: Setup PostgreSQL
         run: |
           cd /tmp
-#          sudo -u postgres psql -c "CREATE DATABASE postgres;"
           sudo -u postgres psql -c "CREATE USER $POSTGRES_USER WITH PASSWORD '$POSTGRES_PASSWORD';"
           sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE postgres TO $POSTGRES_USER;"
       - uses: actions/checkout@v4
