@@ -35,7 +35,7 @@ jobs:
       - name: Setup PostgreSQL
         run: |
           cd /tmp
-          sudo -u postgres psql -c "CREATE DATABASE postgres;"
+#          sudo -u postgres psql -c "CREATE DATABASE postgres;"
           sudo -u postgres psql -c "CREATE USER $POSTGRES_USER WITH PASSWORD '$POSTGRES_PASSWORD';"
           sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE postgres TO $POSTGRES_USER;"
       - uses: actions/checkout@v4
