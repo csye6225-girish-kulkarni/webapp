@@ -1,6 +1,6 @@
 [Unit]
 Description=WebApp Service
-ConditionPathExists=/usr/bin/webapp
+ConditionPathExists=/tmp/webapp.flag
 After=network.target
 
 [Service]

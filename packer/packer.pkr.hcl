@@ -32,14 +32,6 @@ build {
     script = "./install_go.sh"
   }
 
-  provisioner "shell" {
-    script = "./install_postgres.sh"
-    environment_vars = [
-      "POSTGRES_USER=${var.postgres_user}",
-      "POSTGRES_PASSWORD=${var.postgres_password}"
-    ]
-  }
-
   provisioner "file" {
     source      = "webapp"
     destination = "/tmp/webapp"
@@ -48,20 +40,6 @@ build {
   provisioner "shell" {
     script = "./build_webapp.sh"
   }
-
-  provisioner "file" {
-    source      = "./webapp.env"
-    destination = "/tmp/webapp.env"
-  }
-
-  provisioner "shell" {
-    inline = [
-      "sudo mv /tmp/webapp.env /usr/bin/",
-      "sudo chown csye6225:csye6225 /usr/bin/webapp.env",
-      "sudo chmod 644 /usr/bin/webapp.env"
-    ]
-  }
-
 
   provisioner "file" {
     source      = "./webapp.service"
