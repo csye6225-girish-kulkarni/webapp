@@ -1,4 +1,5 @@
-1) The Postgres Connection String is :
+1) 
+2) The Postgres Connection String is :
 
 ```
 export POSTGRES_CONN_STR=postgres://girish:test@123@localhost:5432/postgres
