@@ -24,6 +24,7 @@ import (
 func setupDB() *db.PostgreSQL {
 	connString := os.Getenv("POSTGRES_CONN_STR_TEST")
 	connString = connString + "?sslmode=disable"
+	fmt.Println(connString)
 	postgresObj := db.NewPostgreSQL(connString)
 	fmt.Println(connString)
 	err := postgresObj.Ping(nil)
