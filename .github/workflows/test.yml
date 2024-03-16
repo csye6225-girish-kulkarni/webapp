@@ -12,13 +12,13 @@ jobs:
     environment: Dev
 
     steps:
+      - uses: actions/checkout@v4
       - name: Setup Postgres
         run: |
           sudo systemctl start postgresql
           sudo systemctl enable postgresql
           sudo -u postgres psql -c "CREATE USER ${{ secrets.POSTGRES_USER }} WITH PASSWORD '${{ secrets.POSTGRES_PASSWORD }}'"
           sudo systemctl restart postgresql
-      - uses: actions/checkout@v4
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
