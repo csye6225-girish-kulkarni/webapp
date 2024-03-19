@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -29,7 +29,7 @@ func setupDB() *db.PostgreSQL {
 	err := postgresObj.Ping(nil)
 
 	if err != nil {
-		log.Fatalf("Unable to ping to DB err : %v", err)
+		log.Fatal().Err(err).Msg("Unable to connect to DB")
 	}
 
 	fmt.Println("Successfully Connected to DB")
@@ -41,7 +41,7 @@ func teardownDB(postgresObj *db.PostgreSQL) {
 
 	err := postgresObj.Close()
 	if err != nil {
-		log.Fatalf("Unable to close the DB connection err : %v", err)
+		log.Fatal().Err(err).Msg("Error while closing the DB Connection")
 	}
 	fmt.Println("Successfully Closed the DB Connection")
 }
