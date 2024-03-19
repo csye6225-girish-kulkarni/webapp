@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
 	"webapp/apperror"
 	"webapp/repository"
@@ -34,7 +34,7 @@ func (us *userService) CreateUser(ctx *gin.Context, userRequest types.UserReques
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userRequest.Password), bcrypt.DefaultCost)
 	if err != nil {
-		log.Errorf("Error hashing the password : %v", err)
+		log.Error().Err(err).Msg("Error hashing the password")
 		return types.UserResponse{}, err
 	}
 	user = types.User{
@@ -46,11 +46,11 @@ func (us *userService) CreateUser(ctx *gin.Context, userRequest types.UserReques
 
 	updatedUser, err := us.repo.CreateUser(ctx, user)
 	if err != nil {
-		log.Errorf("Error creating the user : %v", err)
+		log.Error().Err(err).Msg("Error creating the user")
 		return types.UserResponse{}, err
 	}
 
-	log.Println("User created successfully")
+	log.Debug().Msg("User Created successfully")
 	return types.UserResponse{
 		Username:  updatedUser.Username,
 		FirstName: updatedUser.FirstName,
@@ -64,13 +64,13 @@ func (us *userService) CreateUser(ctx *gin.Context, userRequest types.UserReques
 func (us *userService) ValidateUser(ctx *gin.Context, username, password string) (bool, types.User, error) {
 	user, err := us.repo.GetByUsername(ctx, username)
 	if err != nil {
-		log.Errorf("Error getting the user by username : %v", err)
+		log.Error().Err(err).Msg("Error getting the user by username")
 		return false, types.User{}, err
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
-		log.Errorf("Error comparing the password : %v", err)
+		log.Error().Err(err).Msg("Incorrect Password")
 		return false, types.User{}, apperror.ErrIncorrectPassword
 	}
 
@@ -80,7 +80,7 @@ func (us *userService) ValidateUser(ctx *gin.Context, username, password string)
 func (us *userService) GetUserByUsername(ctx *gin.Context, username string) (types.User, error) {
 	user, err := us.repo.GetByUsername(ctx, username)
 	if err != nil {
-		log.Errorf("Error getting the user by username : %v", err)
+		log.Error().Err(err).Msg("Error getting the user by username")
 		return types.User{}, err
 	}
 	return user, nil
@@ -93,7 +93,7 @@ func (us *userService) UpdateUser(ctx *gin.Context, userRequest types.UpdateUser
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userRequest.Password), bcrypt.DefaultCost)
 	if err != nil {
-		log.Errorf("Error hashing the password : %v", err)
+		log.Error().Err(err).Msg("Error hashing the password")
 		return types.UserResponse{}, errors.New("incorrect password")
 	}
 
@@ -105,11 +105,11 @@ func (us *userService) UpdateUser(ctx *gin.Context, userRequest types.UpdateUser
 
 	updatedUser, err := us.repo.UpdateUser(ctx, user)
 	if err != nil {
-		log.Errorf("Error updating the user : %v", err)
+		log.Error().Err(err).Msg("Error updating the user")
 		return types.UserResponse{}, err
 	}
 
-	log.Println("User Updated successfully")
+	log.Debug().Msg("User updated successfully")
 	return types.UserResponse{
 		Username:  updatedUser.Username,
 		FirstName: updatedUser.FirstName,

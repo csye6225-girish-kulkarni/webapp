@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgconn"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"net/http"
 	"webapp/service"
 	"webapp/types"
@@ -35,21 +35,21 @@ func (uc *userController) CreateUser(ctx *gin.Context) {
 	j.DisallowUnknownFields()
 	err := j.Decode(&request)
 	if err != nil {
-		log.Printf("Bad Request with error : %v", err.Error())
+		log.Error().Err(err).Msg("Bad Request")
 		ctx.Status(http.StatusBadRequest)
 		return
 	}
 	// Validating the Content of the Request
 	err = request.Validate()
 	if err != nil {
-		log.Printf("Bad Request with error : %v", err.Error())
+		log.Error().Err(err).Msg("Bad Request")
 		ctx.Status(http.StatusBadRequest)
 		return
 	}
 
 	err = request.Validate()
 	if err != nil {
-		log.Printf("Bad Request with apperror : %v", err.Error())
+		log.Error().Err(err).Msg("Bad Request")
 		ctx.Status(http.StatusBadRequest)
 		return
 	}
@@ -58,16 +58,17 @@ func (uc *userController) CreateUser(ctx *gin.Context) {
 	if err != nil {
 		if pqErr, ok := err.(*pgconn.PgError); ok {
 			if pqErr.Code == "23505" {
-				log.Error("Username Already Exists")
+				log.Error().Msg("Username Already Exists")
 				ctx.Status(http.StatusBadRequest)
 				return
 			}
 		}
-		log.Printf("Failed to create user with apperror : %v", err.Error())
+		log.Error().Err(err).Msg("Failed to create user")
 		ctx.Status(http.StatusInternalServerError)
 		return
 	}
 
+	log.Info().Msg("User created successfully")
 	ctx.JSON(http.StatusCreated, response)
 	return
 }
@@ -77,18 +78,20 @@ func (uc *userController) GetUser(ctx *gin.Context) {
 		response types.UserResponse
 	)
 	if ctx.Request.Body != http.NoBody {
-		log.Println("Request has a payload")
+		log.Error().Msg("Bad Request with error : Request has a payload")
 		ctx.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 	// Request query params validation
 	if len(ctx.Request.URL.RawQuery) > 0 {
+		log.Error().Msg("Bad Request with error : Request has query parameters")
 		ctx.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
 	user, ok := ctx.Get("user")
 	if !ok {
+		log.Error().Msg("Unauthorized")
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
@@ -103,6 +106,7 @@ func (uc *userController) GetUser(ctx *gin.Context) {
 		ID:        userDetails.ID.String(),
 	}
 
+	log.Info().Msg("User details fetched successfully")
 	ctx.JSON(http.StatusOK, response)
 	return
 }
@@ -116,25 +120,26 @@ func (uc *userController) UpdateUser(ctx *gin.Context) {
 	j.DisallowUnknownFields()
 	err := j.Decode(&request)
 	if err != nil {
-		log.Printf("Bad Request with error : %v", err.Error())
+		log.Error().Err(err).Msg("Bad Request")
 		ctx.Status(http.StatusBadRequest)
 		return
 	}
 	// Validating the Content of the Request
 	err = request.Validate()
 	if err != nil {
-		log.Printf("Bad Request with error : %v", err.Error())
+		log.Error().Err(err).Msg("Bad Request")
 		ctx.Status(http.StatusBadRequest)
 		return
 	}
 
 	_, err = uc.userService.UpdateUser(ctx, request)
 	if err != nil {
-		log.Printf("Failed to update user with error : %v", err.Error())
+		log.Error().Err(err).Msg("Failed to update user")
 		ctx.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
+	log.Info().Msg("User updated successfully")
 	ctx.Status(http.StatusNoContent)
 	return
 }
