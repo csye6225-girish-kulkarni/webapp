@@ -7,7 +7,7 @@ variable "gcp_project_id" {
 variable "gcp_zone" {
   type        = string
   description = "The GCP zone"
-  default     = "us-east1-b"
+  default     = "us-east1-c"
 }
 
 variable "gcp_disk_size" {
