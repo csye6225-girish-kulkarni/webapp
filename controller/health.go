@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"net/http"
 	"webapp/service"
 )
@@ -24,23 +24,24 @@ func NewHealthController(hs service.Service) HealthController {
 func (hs *healthController) GetHealth(ctx *gin.Context) {
 	// Request Payload validation
 	if ctx.Request.ContentLength > 0 {
-		log.Println("Request has a payload")
+		log.Info().Msg("Request has a payload")
 		ctx.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 	// Request query params validation
 	if len(ctx.Request.URL.RawQuery) > 0 {
+		log.Info().Msg("Request has query parameters")
 		ctx.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
 	err := hs.healthService.Ping(ctx)
 	if err != nil {
-		log.Printf("Unable to Ping to DB err : %v", err)
+		log.Error().Err(err).Msg("Unable to Ping to DB")
 		ctx.Status(http.StatusServiceUnavailable)
 		return
 	}
-	log.Println("Database Successfully pinged")
+	log.Info().Msg("Database Successfully pinged")
 	ctx.Status(http.StatusOK)
 	return
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/lib/pq"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"time"
@@ -26,7 +26,7 @@ func NewPostgreSQL(connStr string) *PostgreSQL {
 	case <-connected:
 		return pg
 	case <-time.After(30 * time.Second):
-		log.Println("Timeout while connecting to the database")
+		log.Error().Msg("Failed to connect to the database")
 		return nil
 	}
 }
@@ -40,61 +40,69 @@ func (p *PostgreSQL) connectWithRetry(connStr string, connected chan bool) {
 		db, err = gorm.Open(postgres.Open(connStr), &gorm.Config{})
 		if err == nil {
 			p.DB = db
-			log.Println("Database connection established")
+			log.Info().Msg("Database connection established")
 			// Adding the UUID extension to the database
 			db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"")
 
 			err = db.AutoMigrate(&types.User{})
 			if err != nil {
-				log.Printf("Error while migrating the table: %v", err)
+				log.Error().Err(err).Msg("Error while migrating the table")
 				return
 			}
-			log.Println("User table migrated successfully")
+			log.Info().Msg("User table migrated successfully")
 			connected <- true
 			return
 		}
-		log.Printf("Attempt %d: could not connect to database: %v", i, err)
+		log.Error().Err(err).Msgf("Attempt %d: could not connect to database", i)
 		time.Sleep(time.Duration(5) * time.Second)
 	}
 	close(connected)
-	log.Printf("Failed to connect to the database after %d attempts: %v", maxAttempts, err)
+	log.Error().Err(err).Msgf("Failed to connect to the database after %d attempts", maxAttempts)
 }
 
 func (p *PostgreSQL) Ping(ctx *gin.Context) error {
 	if p == nil || p.DB == nil {
+		log.Debug().Msg("DB object is not initialized")
 		return errors.New("DB object is not initialized")
 	}
 
 	db, err := p.DB.DB()
 	if err != nil {
+		log.Error().Err(err).Msg("Error getting the database object")
 		return err
 	}
 	if err = db.Ping(); err != nil {
+		log.Error().Err(err).Msg("Error pinging the database")
 		return err
 	}
-
+	log.Info().Msg("Database pinged successfully")
 	return nil
 }
 
 func (p *PostgreSQL) CreateUser(ctx *gin.Context, user types.User) (types.User, error) {
 	if p == nil || p.DB == nil {
+		log.Debug().Msg("DB object is not initialized")
 		return types.User{}, errors.New("DB object is not initialized")
 	}
 
 	if err := p.DB.Create(&user).Error; err != nil {
+		log.Error().Err(err).Msg("Error creating the user")
 		return types.User{}, err
 	}
+
+	log.Info().Msg("User created successfully")
 	return user, nil
 }
 
 func (p *PostgreSQL) GetByUsername(ctx *gin.Context, username string) (types.User, error) {
 	if p == nil || p.DB == nil {
+		log.Debug().Msg("DB object is not initialized")
 		return types.User{}, errors.New("DB object is not initialized")
 	}
 
 	var user types.User
 	if err := p.DB.Where("username = ?", username).First(&user).Error; err != nil {
-		log.Printf("Error getting the user by username : %v", err)
+		log.Error().Err(err).Msg("Error getting the user by username")
 		return types.User{}, err
 	}
 	return user, nil
@@ -102,18 +110,22 @@ func (p *PostgreSQL) GetByUsername(ctx *gin.Context, username string) (types.Use
 
 func (p *PostgreSQL) UpdateUser(ctx *gin.Context, user types.User) (types.User, error) {
 	if p == nil || p.DB == nil {
+		log.Debug().Msg("DB object is not initialized")
 		return types.User{}, errors.New("DB object is not initialized")
 	}
 	// The user details are stored in the context in the middleware
 	u, ok := ctx.Get("user")
 	if !ok {
+		log.Error().Msg("User not found in context")
 		return types.User{}, errors.New("user not found in context")
 	}
 	existingUser := u.(types.User)
 
 	if err := p.DB.Model(&existingUser).Updates(user).Error; err != nil {
+		log.Error().Err(err).Msg("Error updating the user")
 		return types.User{}, err
 	}
+	log.Info().Msg("User updated successfully")
 	return user, nil
 }
 

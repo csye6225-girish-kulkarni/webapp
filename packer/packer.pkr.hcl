@@ -19,17 +19,27 @@ source "googlecompute" "webapp-image" {
   zone                = var.gcp_zone
   disk_size           = var.gcp_disk_size
   disk_type           = var.gcp_disk_type
+  machine_type        = "n1-standard-2"
 }
 
 build {
   sources = ["source.googlecompute.webapp-image"]
 
   provisioner "shell" {
-    script = "./create_user.sh"
+    script = "./scripts/create_user.sh"
   }
 
   provisioner "shell" {
-    script = "./install_go.sh"
+    script = "./scripts/install_go.sh"
+  }
+
+  provisioner "file" {
+    source      = "config.yaml"
+    destination = "/tmp/config.yaml"
+  }
+
+  provisioner "shell" {
+    script = "./scripts/install_ops_agent.sh"
   }
 
   provisioner "file" {
@@ -38,7 +48,7 @@ build {
   }
 
   provisioner "shell" {
-    script = "./build_webapp.sh"
+    script = "./scripts/build_webapp.sh"
   }
 
   provisioner "file" {
@@ -47,6 +57,6 @@ build {
   }
 
   provisioner "shell" {
-    script = "./systemd_config.sh"
+    script = "./scripts/systemd_config.sh"
   }
 }

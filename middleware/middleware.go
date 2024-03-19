@@ -3,6 +3,7 @@ package middleware
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 	"net/http"
 	"webapp/apperror"
 	"webapp/service"
@@ -16,14 +17,17 @@ func BasicAuth(userService service.UserService) gin.HandlerFunc {
 			isValid, fetchedUser, err := userService.ValidateUser(c, username, password)
 			if err != nil {
 				if errors.Is(err, apperror.ErrIncorrectPassword) {
+					log.Error().Err(err).Msg("Incorrect Password")
 					c.AbortWithStatus(http.StatusUnauthorized)
 					return
 				}
+				log.Error().Err(err).Msg("Error validating the user")
 				c.AbortWithStatus(http.StatusUnauthorized)
 				return
 			}
 
 			if isValid {
+				log.Info().Msg("User validated successfully")
 				// Storing the user details in the context to avoid redundant calls to the database
 				c.Set("user", fetchedUser)
 				c.Next()
@@ -31,6 +35,7 @@ func BasicAuth(userService service.UserService) gin.HandlerFunc {
 			}
 		}
 
+		log.Error().Msg("Error validating the user")
 		c.Header("WWW-Authenticate", `Basic realm="Restricted"`)
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
