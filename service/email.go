@@ -49,7 +49,7 @@ func (es *RealEmailService) SendVerificationEmailToQueue(ctx context.Context, us
 		return err
 	}
 	// Publish the message to the queue
-	topic := client.Topic("email-sender")
+	topic := client.Topic("email_verification")
 	result := topic.Publish(ctx, &pubsub.Message{
 		Data: userDetailsJson,
 	})
