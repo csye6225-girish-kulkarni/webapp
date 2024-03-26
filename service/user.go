@@ -141,9 +141,20 @@ func (us *userService) UpdateUser(ctx *gin.Context, userRequest types.UpdateUser
 }
 
 func (us *userService) VerifyEmail(ctx *gin.Context, uuid string) error {
-	err := us.repo.MarkEmailAsVerified(ctx, uuid)
+	user, email, err := us.repo.GetByEmailVerificationUUID(ctx, uuid)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting the user by email verification id")
+		return err
+	}
+
+	if time.Now().After(email.EmailVerificationExpiry) {
+		log.Error().Msg("Link has expired")
+		return apperror.ErrLinkExpired
+	}
+
+	err = us.repo.MarkEmailAsVerified(ctx, user.ID.String())
+	if err != nil {
+		log.Error().Err(err).Msg("Error marking the email as verified")
 		return err
 	}
 

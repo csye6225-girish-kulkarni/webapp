@@ -24,16 +24,24 @@ func (ur *UserRequest) Validate() error {
 }
 
 type User struct {
-	ID                    uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key"`
-	CreatedAt             time.Time
-	UpdatedAt             time.Time
-	Username              string    `gorm:"type:varchar(255);unique"`
-	Password              string    `gorm:"type:varchar(255)"`
-	FirstName             string    `gorm:"type:varchar(255)"`
-	LastName              string    `gorm:"type:varchar(255)"`
-	EmailVerificationUUID uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
-	IsEmailVerified       bool      `gorm:"type:boolean;default:false"`
-	IsEmailLinkExpired    bool      `gorm:"type:boolean;default:false"`
+	ID              uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key"`
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+	Username        string `gorm:"type:varchar(255);unique"`
+	Password        string `gorm:"type:varchar(255)"`
+	FirstName       string `gorm:"type:varchar(255)"`
+	LastName        string `gorm:"type:varchar(255)"`
+	IsEmailVerified bool   `gorm:"type:boolean;default:false"`
+}
+
+type Email struct {
+	ID                      uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key"`
+	CreatedAt               time.Time
+	UpdatedAt               time.Time
+	EmailVerificationUUID   uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
+	EmailVerificationExpiry time.Time
+	UserID                  uuid.UUID `gorm:"type:uuid;foreignkey:ID"`
+	User                    User
 }
 
 type UserResponse struct {
@@ -61,4 +69,5 @@ type EmailVerification struct {
 	Username              string    `json:"username"`
 	FirstName             string    `json:"firstName"`
 	LastName              string    `json:"lastName"`
+	UserID                uuid.UUID `json:"userID"`
 }
