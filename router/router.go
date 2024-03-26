@@ -24,7 +24,8 @@ func InitializeRouter() *gin.Engine {
 	postgresRepo := db.NewPostgreSQL(connString)
 
 	healthService := service.NewHealthService(postgresRepo)
-	userService := service.NewUserService(postgresRepo)
+	emailService := service.NewEmailService()
+	userService := service.NewUserService(postgresRepo, emailService)
 	userController := controller.NewUserController(userService)
 	healthController := controller.NewHealthController(healthService)
 
@@ -44,6 +45,7 @@ func InitializeRouter() *gin.Engine {
 		context.Data(http.StatusNotFound, "text/plain", []byte{})
 		context.Abort()
 	})
+	router.GET("/v1/verify-email", userController.VerifyEmail)
 
 	return router
 }

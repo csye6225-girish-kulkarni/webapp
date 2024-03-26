@@ -6,6 +6,8 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/rs/zerolog/log"
 	"net/http"
+	"strconv"
+	"time"
 	"webapp/service"
 	"webapp/types"
 )
@@ -14,6 +16,7 @@ type UserController interface {
 	CreateUser(ctx *gin.Context)
 	GetUser(ctx *gin.Context)
 	UpdateUser(ctx *gin.Context)
+	VerifyEmail(ctx *gin.Context)
 }
 
 type userController struct {
@@ -141,5 +144,44 @@ func (uc *userController) UpdateUser(ctx *gin.Context) {
 
 	log.Info().Msg("User updated successfully")
 	ctx.Status(http.StatusNoContent)
+	return
+}
+
+func (uc *userController) VerifyEmail(ctx *gin.Context) {
+	emailUUID := ctx.Query("uuid")
+	if emailUUID == "" {
+		log.Error().Msg("Bad Request with error : Email UUID is empty")
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	expiry := ctx.Query("expiry")
+	if expiry == "" {
+		log.Error().Msg("Bad Request with error : Expiry is empty")
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	expiryTime, err := strconv.ParseInt(expiry, 10, 64)
+	if err != nil {
+		log.Error().Err(err).Msg("Bad Request with error : Expiry is not a valid integer")
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	// Check if the link has expired
+	if time.Now().Unix() > expiryTime {
+		log.Error().Msg("Link has expired")
+		ctx.JSON(http.StatusGone, gin.H{"message": "Link has expired"})
+		return
+	}
+
+	err = uc.userService.VerifyEmail(ctx, emailUUID)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to verify email")
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+
+	log.Info().Msg("Email verified successfully")
+	ctx.JSON(http.StatusOK, gin.H{"message": "Email verified successfully"})
 	return
 }
