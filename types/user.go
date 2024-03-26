@@ -33,6 +33,7 @@ type User struct {
 	LastName              string    `gorm:"type:varchar(255)"`
 	EmailVerificationUUID uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
 	IsEmailVerified       bool      `gorm:"type:boolean;default:false"`
+	IsEmailLinkExpired    bool      `gorm:"type:boolean;default:false"`
 }
 
 type UserResponse struct {
