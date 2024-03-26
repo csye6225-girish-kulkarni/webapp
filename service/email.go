@@ -5,8 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/rs/zerolog/log"
-	"strconv"
-	"time"
 	"webapp/types"
 )
 
@@ -29,18 +27,17 @@ func (es *RealEmailService) SendVerificationEmailToQueue(ctx context.Context, us
 	}
 
 	// Prepare the user details and verification link
-	expiryTime := time.Now().Add(2 * time.Minute).Unix() // 2 minutes expiry time
-	verificationLink := "http://girishkulkarni.me:8080/v1/verify-email?uuid=" +
-		user.EmailVerificationUUID.String() +
-		"&expiry=" + strconv.FormatInt(expiryTime, 10)
+	verificationLink := "http://girishkulkarni.me:8080/v1/verify-email?uuid="
+	//user.EmailVerificationUUID.String()
 	log.Info().Str("verificationLink", verificationLink).Msg("Verification Link")
 
 	userDetails := types.EmailVerification{
-		EmailVerificationUUID: user.EmailVerificationUUID,
-		VerificationLink:      verificationLink,
-		Username:              user.Username,
-		FirstName:             user.FirstName,
-		LastName:              user.LastName,
+		//EmailVerificationUUID: user.EmailVerificationUUID,
+		VerificationLink: verificationLink,
+		Username:         user.Username,
+		FirstName:        user.FirstName,
+		LastName:         user.LastName,
+		UserID:           user.ID,
 	}
 
 	userDetailsJson, err := json.Marshal(userDetails)

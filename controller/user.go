@@ -2,12 +2,12 @@ package controller
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/rs/zerolog/log"
 	"net/http"
-	"strconv"
-	"time"
+	"webapp/apperror"
 	"webapp/service"
 	"webapp/types"
 )
@@ -154,28 +154,14 @@ func (uc *userController) VerifyEmail(ctx *gin.Context) {
 		ctx.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	expiry := ctx.Query("expiry")
-	if expiry == "" {
-		log.Error().Msg("Bad Request with error : Expiry is empty")
-		ctx.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-	expiryTime, err := strconv.ParseInt(expiry, 10, 64)
-	if err != nil {
-		log.Error().Err(err).Msg("Bad Request with error : Expiry is not a valid integer")
-		ctx.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
 
-	// Check if the link has expired
-	if time.Now().Unix() > expiryTime {
-		log.Error().Msg("Link has expired")
-		ctx.JSON(http.StatusGone, gin.H{"message": "Link has expired"})
-		return
-	}
-
-	err = uc.userService.VerifyEmail(ctx, emailUUID)
+	err := uc.userService.VerifyEmail(ctx, emailUUID)
 	if err != nil {
+		if errors.Is(err, apperror.ErrLinkExpired) {
+			log.Error().Msg("Link has expired")
+			ctx.Status(http.StatusGone)
+			return
+		}
 		log.Error().Err(err).Msg("Failed to verify email")
 		ctx.Status(http.StatusInternalServerError)
 		return

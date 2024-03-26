@@ -12,6 +12,7 @@ type UserRepo interface {
 	UpdateUser(ctx *gin.Context, user types.User) (types.User, error)
 	Close() error
 	MarkEmailAsVerified(ctx *gin.Context, uuid string) error
+	GetByEmailVerificationUUID(ctx *gin.Context, uuid string) (types.User, types.Email, error)
 	//GetByEmailVerificationID(ctx *gin.Context, id string) (types.User, error)
 	//Exec(query string, args ...interface{}) error
 }

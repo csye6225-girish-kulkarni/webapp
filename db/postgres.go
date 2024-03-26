@@ -44,7 +44,7 @@ func (p *PostgreSQL) connectWithRetry(connStr string, connected chan bool) {
 			// Adding the UUID extension to the database
 			db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"")
 
-			err = db.AutoMigrate(&types.User{})
+			err = db.AutoMigrate(&types.User{}, &types.Email{})
 			if err != nil {
 				log.Error().Err(err).Msg("Error while migrating the table")
 				return
@@ -140,7 +140,7 @@ func (p *PostgreSQL) Close() error {
 	return db.Close()
 }
 
-func (p *PostgreSQL) MarkEmailAsVerified(ctx *gin.Context, uuid string) error {
+func (p *PostgreSQL) MarkEmailAsVerified(ctx *gin.Context, userID string) error {
 	if p == nil || p.DB == nil {
 		log.Debug().Msg("DB object is not initialized")
 		return errors.New("DB object is not initialized")
@@ -148,7 +148,7 @@ func (p *PostgreSQL) MarkEmailAsVerified(ctx *gin.Context, uuid string) error {
 
 	// Get the user by the email verification UUID
 	var user types.User
-	if err := p.DB.Where("email_verification_uuid = ?", uuid).First(&user).Error; err != nil {
+	if err := p.DB.Where("id = ?", userID).First(&user).Error; err != nil {
 		log.Debug().Err(err).Msg("Error getting the user by email verification UUID")
 		return err
 	}
@@ -156,17 +156,37 @@ func (p *PostgreSQL) MarkEmailAsVerified(ctx *gin.Context, uuid string) error {
 	// Check if the user's email is already verified
 	if user.IsEmailVerified {
 		log.Debug().Msg("Email is already verified")
-		return errors.New("Email is already verified")
+		return errors.New("email is already verified")
 	}
 
 	// Mark the user's email as verified
 	if err := p.DB.Model(&user).Update("is_email_verified", true).Error; err != nil {
-		log.Debug().Err(err).Msg("Error marking the email as verified")
+		log.Error().Err(err).Msg("Error updating the user")
 		return err
 	}
 
 	log.Info().Msg("Email verified successfully")
 	return nil
+}
+
+func (p *PostgreSQL) GetByEmailVerificationUUID(ctx *gin.Context, uuid string) (types.User, types.Email, error) {
+	if p == nil || p.DB == nil {
+		log.Debug().Msg("DB object is not initialized")
+		return types.User{}, types.Email{}, errors.New("DB object is not initialized")
+	}
+
+	var email types.Email
+	if err := p.DB.Where("email_verification_uuid = ?", uuid).First(&email).Error; err != nil {
+		log.Error().Err(err).Msg("Error getting the email by email verification UUID")
+		return types.User{}, types.Email{}, err
+	}
+
+	var user types.User
+	if err := p.DB.Where("id = ?", email.UserID).First(&user).Error; err != nil {
+		log.Error().Err(err).Msg("Error getting the user by user ID")
+		return types.User{}, types.Email{}, err
+	}
+	return user, email, nil
 }
 
 //func (p *PostgreSQL) Exec(query string, args ...interface{}) error {
