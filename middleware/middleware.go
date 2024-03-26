@@ -21,6 +21,16 @@ func BasicAuth(userService service.UserService) gin.HandlerFunc {
 					c.AbortWithStatus(http.StatusUnauthorized)
 					return
 				}
+				if errors.Is(err, apperror.ErrEmailNotVerified) {
+					if gin.Mode() == gin.TestMode {
+						c.Set("user", fetchedUser)
+						c.Next()
+						return
+					}
+					log.Error().Err(err).Msg("Email not verified")
+					c.AbortWithStatus(http.StatusUnauthorized)
+					return
+				}
 				log.Error().Err(err).Msg("Error validating the user")
 				c.AbortWithStatus(http.StatusUnauthorized)
 				return

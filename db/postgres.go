@@ -140,6 +140,35 @@ func (p *PostgreSQL) Close() error {
 	return db.Close()
 }
 
+func (p *PostgreSQL) MarkEmailAsVerified(ctx *gin.Context, uuid string) error {
+	if p == nil || p.DB == nil {
+		log.Debug().Msg("DB object is not initialized")
+		return errors.New("DB object is not initialized")
+	}
+
+	// Get the user by the email verification UUID
+	var user types.User
+	if err := p.DB.Where("email_verification_uuid = ?", uuid).First(&user).Error; err != nil {
+		log.Debug().Err(err).Msg("Error getting the user by email verification UUID")
+		return err
+	}
+
+	// Check if the user's email is already verified
+	if user.IsEmailVerified {
+		log.Debug().Msg("Email is already verified")
+		return errors.New("Email is already verified")
+	}
+
+	// Mark the user's email as verified
+	if err := p.DB.Model(&user).Update("is_email_verified", true).Error; err != nil {
+		log.Debug().Err(err).Msg("Error marking the email as verified")
+		return err
+	}
+
+	log.Info().Msg("Email verified successfully")
+	return nil
+}
+
 //func (p *PostgreSQL) Exec(query string, args ...interface{}) error {
 //	if p == nil || p.DB == nil {
 //		return errors.New("DB object is not initialized")

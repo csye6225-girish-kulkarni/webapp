@@ -17,6 +17,7 @@ import (
 	"webapp/db"
 	"webapp/middleware"
 	"webapp/service"
+	"webapp/service/mocks"
 	"webapp/types"
 	"webapp/utils"
 )
@@ -48,12 +49,14 @@ func teardownDB(postgresObj *db.PostgreSQL) {
 
 func setupTestRouter(postgresObj *db.PostgreSQL) *gin.Engine {
 	router := gin.Default()
+	gin.SetMode(gin.TestMode)
 	router.Use(cors.Default())
 	router.Use(gin.Recovery())
 	router.Use(middleware.SetNoCacheHeader())
 
 	healthService := service.NewHealthService(postgresObj)
-	userService := service.NewUserService(postgresObj)
+	mockEmailService := mocks.NewMockEmailService()
+	userService := service.NewUserService(postgresObj, mockEmailService)
 	userController := controller.NewUserController(userService)
 	healthController := controller.NewHealthController(healthService)
 

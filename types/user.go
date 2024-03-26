@@ -24,13 +24,15 @@ func (ur *UserRequest) Validate() error {
 }
 
 type User struct {
-	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Username  string `gorm:"type:varchar(255);unique"`
-	Password  string `gorm:"type:varchar(255)"`
-	FirstName string `gorm:"type:varchar(255)"`
-	LastName  string `gorm:"type:varchar(255)"`
+	ID                    uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key"`
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+	Username              string    `gorm:"type:varchar(255);unique"`
+	Password              string    `gorm:"type:varchar(255)"`
+	FirstName             string    `gorm:"type:varchar(255)"`
+	LastName              string    `gorm:"type:varchar(255)"`
+	EmailVerificationUUID uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
+	IsEmailVerified       bool      `gorm:"type:boolean;default:false"`
 }
 
 type UserResponse struct {
@@ -50,4 +52,12 @@ type UpdateUserRequest struct {
 
 func (ur *UpdateUserRequest) Validate() error {
 	return validate.Struct(ur)
+}
+
+type EmailVerification struct {
+	EmailVerificationUUID uuid.UUID `json:"emailVerificationUUID"`
+	VerificationLink      string    `json:"verificationLink"`
+	Username              string    `json:"username"`
+	FirstName             string    `json:"firstName"`
+	LastName              string    `json:"lastName"`
 }
