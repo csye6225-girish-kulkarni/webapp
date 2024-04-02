@@ -28,7 +28,7 @@ func BasicAuth(userService service.UserService) gin.HandlerFunc {
 						return
 					}
 					log.Error().Err(err).Msg("Email not verified")
-					c.AbortWithStatus(http.StatusUnauthorized)
+					c.AbortWithStatus(http.StatusForbidden)
 					return
 				}
 				log.Error().Err(err).Msg("Error validating the user")
