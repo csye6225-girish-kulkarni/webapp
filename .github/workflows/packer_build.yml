@@ -52,4 +52,11 @@ jobs:
       - name: Build Packer image
         run: |
           cd ./packer
-          packer build -var 'postgres_user=${{ secrets.POSTGRES_USER }}' -var 'postgres_password=${{ secrets.POSTGRES_PASSWORD }}' .
+          IMAGE_NAME=$(packer build -var 'postgres_user=${{ secrets.POSTGRES_USER }}' -var 'postgres_password=${{ secrets.POSTGRES_PASSWORD }}' . | grep 'A disk image was created:' | awk '{print $NF}')
+          echo $IMAGE_NAME > scripts/image_name.txt
+
+      - name: Deployment
+        run: |
+          sudo apt-get install -y jq
+          cd ./packer/scripts
+          bash gcloud_deployment.sh
