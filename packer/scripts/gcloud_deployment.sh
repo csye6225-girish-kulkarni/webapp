@@ -6,6 +6,7 @@ IMAGE_NAME=$(cat image_name.txt)
 # Set the prefix of the existing instance template and the new image ID
 EXISTING_TEMPLATE_PREFIX="webapp-instance"
 NEW_IMAGE_ID=$(cat image_name.txt)
+cat image_name.txt
 
 # Fetch the name of the existing instance template
 EXISTING_TEMPLATE_NAME=$(gcloud compute instance-templates list --format="get(name)" --filter="name~'webapp-instance'")
@@ -23,10 +24,12 @@ NEW_TEMPLATE_NAME="new-webapp-template"
 #echo $MODIFIED_TEMPLATE_CONFIG > temp.json
 
 # Create a new instance template that is identical to the existing one
-gcloud compute instance-templates create $NEW_TEMPLATE_NAME --source-instance-template $EXISTING_TEMPLATE_NAME
-
-# Update the new instance template with the new image
-gcloud compute instance-templates set-disk $NEW_TEMPLATE_NAME --image-project cloud-csye6225-dev --image $NEW_IMAGE_ID --boot
+# Create a new instance template with the new image
+gcloud compute instance-templates create $NEW_TEMPLATE_NAME \
+    --source-instance-template $EXISTING_TEMPLATE_NAME \
+    --image-project cloud-csye6225-dev \
+    --image $NEW_IMAGE_ID \
+    --boot-disk-auto-delete
 
 # Remove the temporary file
 #rm temp.json
