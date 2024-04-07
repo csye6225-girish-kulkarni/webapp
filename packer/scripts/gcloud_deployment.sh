@@ -5,31 +5,32 @@ IMAGE_NAME=$(cat image_name.txt)
 
 # Set the prefix of the existing instance template and the new image ID
 EXISTING_TEMPLATE_PREFIX="webapp-instance"
-NEW_IMAGE_ID=$(cat image_name.txt)
 cat image_name.txt
 
-# Fetch the name of the existing instance template
-EXISTING_TEMPLATE_NAME=$(gcloud compute instance-templates list --format="get(name)" --filter="name~'webapp-instance'")
+gcloud compute instances list --format="json" > temp.json
 
-# Fetch the configuration of the existing instance template
-#TEMPLATE_CONFIG=$(gcloud compute instance-templates describe $EXISTING_TEMPLATE_NAME --region us-east1 --format=json)
+# Parse the JSON file to get the instance name and zone of the first instance
+INSTANCE_NAME=$(jq -r '.[0].name' temp.json)
+INSTANCE_ZONE_URL=$(jq -r '.[0].zone' temp.json)
+INSTANCE_ZONE=$(basename $INSTANCE_ZONE_URL)
 
-# Modify the image ID in the configuration
-#MODIFIED_TEMPLATE_CONFIG=$(echo "$TEMPLATE_CONFIG" | jq --arg NEW_IMAGE_ID $NEW_IMAGE_ID '.properties.disks[0].initializeParams.sourceImage = $NEW_IMAGE_ID')
+echo $INSTANCE_NAME
+echo $INSTANCE_ZONE
+# Extract the region from the zone
+INSTANCE_REGION="${INSTANCE_ZONE%-*}"
+echo $INSTANCE_REGION
+INSTANTIATE_OPTIONS="custom-image,custom-image=projects/cloud-csye6225-dev/global/images/$IMAGE_NAME"
+AUTO_DELETE="yes"
+SOURCE_DISK="persistent-disk-0"
 
-# Set the name of the new instance template
 NEW_TEMPLATE_NAME="new-webapp-template"
 
-# Write the modified configuration to a temporary file
-#echo $MODIFIED_TEMPLATE_CONFIG > temp.json
-
-# Create a new instance template that is identical to the existing one
-# Create a new instance template with the new image
+# Create a new instance template
 gcloud compute instance-templates create $NEW_TEMPLATE_NAME \
-    --source-instance-template $EXISTING_TEMPLATE_NAME \
-    --image-project cloud-csye6225-dev \
-    --image $NEW_IMAGE_ID \
-    --boot-disk-auto-delete
+    --source-instance=$INSTANCE_NAME \
+    --source-instance-zone=us-east1-b \
+    --instance-template-region=us-east1 \
+    --configure-disk=device-name=$SOURCE_DISK,instantiate-from=$INSTANTIATE_OPTIONS,auto-delete=$AUTO_DELETE
 
 # Remove the temporary file
 #rm temp.json
