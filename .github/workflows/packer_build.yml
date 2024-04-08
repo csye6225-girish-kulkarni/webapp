@@ -85,22 +85,10 @@ jobs:
               --region=${{ vars.REGION }}
             
 
-      - name: Rolling Update
+      - name: Deploy new instances
         run: |
-          OPERATION_ID=$(gcloud compute instance-groups managed rolling-action start-update instance-group-manager \
-               --version template=projects/cloud-csye6225-dev/regions/us-east1/instanceTemplates/new-webapp-template \
-               --region=${{ vars.REGION }} \
-               --max-unavailable=3 \
-               --max-surge=0 \
-               --format="value(name)")
-               
-          STATUS="RUNNING"
-          while [ "$STATUS" != "DONE" ]
-          do
-            sleep 10
-            STATUS=$(gcloud compute operations describe "$OPERATION_ID" --region=${{ vars.REGION }} --format="value(status)")
-          done
-          if [ "$STATUS" != "DONE" ]
-            then
-               exit 1
-          fi
+          INSTANCE_NAMES=$(gcloud compute instances list --format="value(name)" | tr '\n' ',')
+          gcloud compute instance-groups managed recreate-instances instance-group-manager \
+            --instances=$INSTANCE_NAMES \
+            --region=${{ vars.REGION }}
+
