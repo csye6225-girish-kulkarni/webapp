@@ -58,7 +58,7 @@ jobs:
 
       - name: Create startup-script.sh
         run: |
-          echo "${{ env.STARTUP_SCRIPT }}" > startup-script.sh
+          echo "${{ vars.STARTUP_SCRIPT }}" > startup-script.sh
 
       - name: Deployment
         run: |
