@@ -58,11 +58,12 @@ jobs:
 
       - name: Deployment
         run: |
-          echo ${{ var.NEW_IMAGE_PROJECT_ID }}
+          echo $NEW_IMAGE_PROJECT_ID
+          echo ${{ vars.NEW_IMAGE_PROJECT_ID }}
           gcloud compute instance-templates create "new-webapp-template" \
-              --machine-type=${{ env.MACHINE_TYPE }} \
+              --machine-type=${{ vars.MACHINE_TYPE }} \
               --image=${{ env.IMAGE_NAME }} \
-              --image-project=${{ env.NEW_IMAGE_PROJECT_ID }} \
+              --image-project=$NEW_IMAGE_PROJECT_ID \
               --boot-disk-size=${{ env.DISK_SIZE_GB }}GB \
               --boot-disk-type=${{ env.DISK_TYPE }} \
               --network-interface=network=${{ env.NETWORK }},subnet=${{ env.SUBNET }} \
