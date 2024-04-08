@@ -90,3 +90,5 @@ jobs:
           gcloud compute instance-groups managed rolling-action start-update instance-group-manager \
           --version=template="projects/cloud-csye6225-dev/regions/us-east1/instanceTemplates/new-webapp-template" \
           --region=us-east1 
+          
+          gcloud compute instance-groups managed wait-until --stable instance-group-manager --region=us-east1
