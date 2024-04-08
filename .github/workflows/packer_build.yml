@@ -77,26 +77,31 @@ jobs:
               --service-account=${{ vars.SERVICE_ACCOUNT_EMAIL }} \
               --scopes=${{ vars.SCOPES }}
           
-          sleep 15
-
       - name: Configure Managed Instance Group
         run: |
-          OPERATION_ID=$(gcloud compute instance-groups managed rolling-action start-update "your-managed-instance-group" \
-          --version template=projects/cloud-csye6225-dev/regions/us-east1/instanceTemplates/new-webapp-template \
-          --region=${{ vars.REGION }} \
-          --max-unavailable=0 \
-          --max-surge=1 \
-          --async \
-          --format="value(name)")
-      
+          sleep 10
+          gcloud compute instance-groups managed set-instance-template instance-group-manager \
+              --template="projects/cloud-csye6225-dev/regions/us-east1/instanceTemplates/new-webapp-template" \
+              --region=${{ vars.REGION }}
+            
+
+      - name: Rolling Update
+        run: |
+          OPERATION_ID=$(gcloud compute instance-groups managed rolling-action start-update instance-group-manager \
+               --version template=projects/cloud-csye6225-dev/regions/us-east1/instanceTemplates/new-webapp-template \
+               --region=${{ vars.REGION }} \
+               --max-unavailable=0 \
+               --max-surge=1 \
+               --async \
+               --format="value(name)")
+               
           STATUS="RUNNING"
           while [ "$STATUS" != "DONE" ]
-         do
+          do
             sleep 10
             STATUS=$(gcloud compute operations describe "$OPERATION_ID" --region=${{ vars.REGION }} --format="value(status)")
-         done
-         if [ "$STATUS" != "DONE" ]
-         then
-          exit 1
-         fi
-          
+          done
+          if [ "$STATUS" != "DONE" ]
+            then
+               exit 1
+          fi
