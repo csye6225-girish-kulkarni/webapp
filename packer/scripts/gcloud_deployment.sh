@@ -2,6 +2,7 @@
 
 # Fetch the image name
 IMAGE_NAME=$(cat image_name.txt)
+echo $IMAGE_NAME
 
 # Set the prefix of the existing instance template and the new image ID
 EXISTING_TEMPLATE_PREFIX="webapp-instance"
@@ -33,8 +34,23 @@ gcloud compute instance-templates create $NEW_TEMPLATE_NAME \
     --configure-disk=device-name=$SOURCE_DISK,instantiate-from=$INSTANTIATE_OPTIONS,auto-delete=$AUTO_DELETE
 
 # Remove the temporary file
-#rm temp.json
+rm temp.json
 
+
+MANAGED_INSTANCE_GROUP_NAME="instance-group-manager"
+gcloud compute instance-groups managed set-instance-template $MANAGED_INSTANCE_GROUP_NAME \
+    --template=$NEW_TEMPLATE_NAME
+
+gcloud compute instance-groups managed rolling-action start-update $MANAGED_INSTANCE_GROUP_NAME \
+    --version template=$NEW_TEMPLATE_NAME \
+    --type proactive \
+    --max-unavailable 0 \
+    --max-surge 3
+
+while [[ $(gcloud compute instance-groups managed list --filter="name=$MANAGED_INSTANCE_GROUP_NAME" --format="get(status)") != "STABLE" ]]; do
+  echo "Waiting for instance group refresh to complete..."
+  sleep 20
+done
 
 # Create a new instance template
 #NEW_INSTANCE_TEMPLATE_NAME="instance-template-$IMAGE_NAME"
