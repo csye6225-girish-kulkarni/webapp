@@ -79,7 +79,7 @@ jobs:
           
       - name: Configure Managed Instance Group
         run: |
-          sleep 10
+          sleep 5
           gcloud compute instance-groups managed set-instance-template instance-group-manager \
               --template="projects/cloud-csye6225-dev/regions/us-east1/instanceTemplates/new-webapp-template" \
               --region=${{ vars.REGION }}
@@ -92,7 +92,6 @@ jobs:
                --region=${{ vars.REGION }} \
                --max-unavailable=0 \
                --max-surge=1 \
-               --async \
                --format="value(name)")
                
           STATUS="RUNNING"
