@@ -87,8 +87,8 @@ jobs:
 
       - name: Deploy new instances
         run: |
-          INSTANCE_NAMES=$(gcloud compute instances list --format="value(name)" | tr '\n' ',')
-          gcloud compute instance-groups managed recreate-instances instance-group-manager \
-            --instances=$INSTANCE_NAMES \
-            --region=${{ vars.REGION }}
+          gcloud compute instance-groups managed rolling-action start-update instance-group-manager \
+          --version=template="projects/cloud-csye6225-dev/regions/us-east1/instanceTemplates/new-webapp-template" \
+          --region=us-east1 \
+          --max-unavailable=0
 
