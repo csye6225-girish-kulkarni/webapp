@@ -4,48 +4,34 @@
 IMAGE_NAME=$(cat image_name.txt)
 echo $IMAGE_NAME
 
-# Set the prefix of the existing instance template and the new image ID
-EXISTING_TEMPLATE_PREFIX="webapp-instance"
-cat image_name.txt
 
-gcloud compute instances list --format="json" > temp.json
+gcloud compute instance-templates create "new-webapp-template" \
+    --machine-type=$MACHINE_TYPE \
+    --image=$NEW_IMAGE \
+    --image-project=$NEW_IMAGE_PROJECT_ID \
+    --boot-disk-size=${DISK_SIZE_GB}GB \
+    --boot-disk-type=$DISK_TYPE \
+    --network-interface=network=$NETWORK,subnet=$SUBNET \
+    --instance-template-region=$REGION \
+    --tags=$TAGS \
+    --no-address \
+    --metadata-from-file=startup-script=startup-script.sh \
+    --service-account=$SERVICE_ACCOUNT_EMAIL \
+    --scopes=$SCOPES
 
-# Parse the JSON file to get the instance name and zone of the first instance
-INSTANCE_NAME=$(jq -r '.[0].name' temp.json)
-INSTANCE_ZONE_URL=$(jq -r '.[0].zone' temp.json)
-INSTANCE_ZONE=$(basename $INSTANCE_ZONE_URL)
-
-echo $INSTANCE_NAME
-echo $INSTANCE_ZONE
-# Extract the region from the zone
-INSTANCE_REGION="${INSTANCE_ZONE%-*}"
-echo $INSTANCE_REGION
-INSTANTIATE_OPTIONS="custom-image,custom-image=projects/cloud-csye6225-dev/global/images/$IMAGE_NAME"
-AUTO_DELETE="yes"
-SOURCE_DISK="persistent-disk-0"
-
-NEW_TEMPLATE_NAME="new-webapp-template"
-
-# Create a new instance template
-gcloud compute instance-templates create $NEW_TEMPLATE_NAME \
-    --source-instance=$INSTANCE_NAME \
-    --source-instance-zone=us-east1-b \
-    --instance-template-region=us-east1 \
-    --configure-disk=device-name=$SOURCE_DISK,instantiate-from=$INSTANTIATE_OPTIONS,auto-delete=$AUTO_DELETE
-
-# Remove the temporary file
-rm temp.json
-
+sleep 30
 
 MANAGED_INSTANCE_GROUP_NAME="instance-group-manager"
 gcloud compute instance-groups managed set-instance-template $MANAGED_INSTANCE_GROUP_NAME \
-    --template=$NEW_TEMPLATE_NAME
+    --template=projects/cloud-csye6225-dev/regions/us-east1/instanceTemplates/$NEW_TEMPLATE_NAME \
+    --region=us-east1
 
 gcloud compute instance-groups managed rolling-action start-update $MANAGED_INSTANCE_GROUP_NAME \
-    --version template=$NEW_TEMPLATE_NAME \
+    --version template=projects/cloud-csye6225-dev/regions/us-east1/instanceTemplates/$NEW_TEMPLATE_NAME \
     --type proactive \
     --max-unavailable 0 \
-    --max-surge 3
+    --max-surge 3 \
+    --region=us-east1
 
 while [[ $(gcloud compute instance-groups managed list --filter="name=$MANAGED_INSTANCE_GROUP_NAME" --format="get(status)") != "STABLE" ]]; do
   echo "Waiting for instance group refresh to complete..."
