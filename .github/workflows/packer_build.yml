@@ -58,18 +58,17 @@ jobs:
 
       - name: Deployment
         run: |
-          echo $NEW_IMAGE_PROJECT_ID
           echo ${{ vars.NEW_IMAGE_PROJECT_ID }}
           gcloud compute instance-templates create "new-webapp-template" \
               --machine-type=${{ vars.MACHINE_TYPE }} \
-              --image=${{ env.IMAGE_NAME }} \
-              --image-project=$NEW_IMAGE_PROJECT_ID \
-              --boot-disk-size=${{ env.DISK_SIZE_GB }}GB \
-              --boot-disk-type=${{ env.DISK_TYPE }} \
-              --network-interface=network=${{ env.NETWORK }},subnet=${{ env.SUBNET }} \
-              --instance-template-region=${{ env.REGION }} \
-              --tags=${{ env.TAGS }} \
+              --image=webapp-image-20240402234336 \
+              --image-project=${{ vars.NEW_IMAGE_PROJECT_ID }}\
+              --boot-disk-size=${{ vars.DISK_SIZE_GB }}GB \
+              --boot-disk-type=${{ vars.DISK_TYPE }} \
+              --network-interface=network=${{ vars.NETWORK }},subnet=${{ vars.SUBNET }} \
+              --instance-template-region=${{ vars.REGION }} \
+              --tags=${{ vars.TAGS }} \
               --no-address \
-              --metadata-from-file=startup-script=${{ env.STARTUP_SCRIPT }} \
-              --service-account=${{ env.SERVICE_ACCOUNT_EMAIL }} \
-              --scopes=${{ env.SCOPES }}
+              --metadata-from-file=startup-script=${{ vars.STARTUP_SCRIPT }} \
+              --service-account=${{ vars.SERVICE_ACCOUNT_EMAIL }} \
+              --scopes=${{ vars.SCOPES }}
