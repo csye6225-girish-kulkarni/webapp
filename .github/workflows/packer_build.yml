@@ -90,7 +90,7 @@ jobs:
           OPERATION_ID=$(gcloud compute instance-groups managed rolling-action start-update instance-group-manager \
                --version template=projects/cloud-csye6225-dev/regions/us-east1/instanceTemplates/new-webapp-template \
                --region=${{ vars.REGION }} \
-               --max-unavailable=2 \
+               --max-unavailable=3 \
                --max-surge=0 \
                --format="value(name)")
                
