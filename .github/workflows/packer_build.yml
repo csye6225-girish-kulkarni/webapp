@@ -52,7 +52,7 @@ jobs:
       - name: Build Packer image
         run: |
           cd ./packer
-          packer build -var 'postgres_user=${{ secrets.POSTGRES_USER }}' -var 'postgres_password=${{ secrets.POSTGRES_PASSWORD }}' > op.txt
+          packer build -var 'postgres_user=${{ secrets.POSTGRES_USER }}' -var 'postgres_password=${{ secrets.POSTGRES_PASSWORD }}' . > op.txt
           N_IMAGE_NAME=$(tail -1 op.txt | awk -F':' '{print $NF}' | cut -d' ' -f2)
           echo "${{ vars.STARTUP_SCRIPT }}" > startup-script.sh
 
