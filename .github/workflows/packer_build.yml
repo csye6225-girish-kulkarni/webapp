@@ -54,27 +54,18 @@ jobs:
           cd ./packer
           IMAGE_NAME=$(packer build -var 'postgres_user=${{ secrets.POSTGRES_USER }}' -var 'postgres_password=${{ secrets.POSTGRES_PASSWORD }}' . | grep 'A disk image was created:' | awk '{print $NF}')
           echo $IMAGE_NAME > scripts/image_name.txt
+          echo $IMAGE_NAME
           echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
 
-      - name: Create startup-script.sh
-        run: |
+#      - name: Create startup-script.sh
+#        run: |
           echo "${{ vars.STARTUP_SCRIPT }}" > startup-script.sh
 
-      - name: Deployment
-        run: |
-          echo "The IMAGE_NAME is ${{ env.IMAGE_NAME }}"
-          if [ -f "./packer/scripts/image_name.txt" ]; then
-            echo "image_name.txt exists"
-            cat ./packer/scripts/image_name.txt
-            NEW_IMAGE_NAME=$(cat ./packer/scripts/image_name.txt)
-            echo "NEW_IMAGE_NAME is $NEW_IMAGE_NAME"
-          else
-            echo "image_name.txt does not exist"
-          fi
-          echo 
+#      - name: Deployment
+#        run: |
           gcloud compute instance-templates create "new-webapp-template" \
               --machine-type=${{ vars.MACHINE_TYPE }} \
-              --image=${{ env.IMAGE_NAME }} \
+              --image=$IMAGE_NAME \
               --image-project=${{ vars.NEW_IMAGE_PROJECT_ID }}\
               --boot-disk-size=${{ vars.DISK_SIZE_GB }}GB \
               --boot-disk-type=${{ vars.DISK_TYPE }} \
