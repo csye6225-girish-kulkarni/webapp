@@ -87,4 +87,4 @@ jobs:
 
       - name: Wait for update to finish
         run: |
-          echo $(gcloud compute instance-groups managed wait-until --stable instance-group-manager --region=us-east1) || exit 1
+          gcloud compute instance-groups managed wait-until --version-target-reached instance-group-manager --region=us-east1 || exit 1
