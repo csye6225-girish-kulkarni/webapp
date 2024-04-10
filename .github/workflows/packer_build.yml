@@ -62,8 +62,16 @@ jobs:
 
       - name: Deployment
         run: |
-          NEW_IMAGE_NAME=$(cat ./packer/scripts/image_name.txt)
-          echo $NEW_IMAGE_NAME
+          echo "The IMAGE_NAME is ${{ env.IMAGE_NAME }}"
+          if [ -f "./packer/scripts/image_name.txt" ]; then
+            echo "image_name.txt exists"
+            cat ./packer/scripts/image_name.txt
+            NEW_IMAGE_NAME=$(cat ./packer/scripts/image_name.txt)
+            echo "NEW_IMAGE_NAME is $NEW_IMAGE_NAME"
+          else
+            echo "image_name.txt does not exist"
+          fi
+          echo 
           gcloud compute instance-templates create "new-webapp-template" \
               --machine-type=${{ vars.MACHINE_TYPE }} \
               --image=${{ env.IMAGE_NAME }} \
