@@ -62,11 +62,11 @@ jobs:
 
       - name: Deployment
         run: |
-          IMAGE_NAME=$(cat ./packer/scripts/image_name.txt)
-          echo ${{ vars.NEW_IMAGE_PROJECT_ID }}
+          NEW_IMAGE_NAME=$(cat ./packer/scripts/image_name.txt)
+          echo $NEW_IMAGE_NAME
           gcloud compute instance-templates create "new-webapp-template" \
               --machine-type=${{ vars.MACHINE_TYPE }} \
-              --image=$IMAGE_NAME \
+              --image=${{ env.IMAGE_NAME }} \
               --image-project=${{ vars.NEW_IMAGE_PROJECT_ID }}\
               --boot-disk-size=${{ vars.DISK_SIZE_GB }}GB \
               --boot-disk-type=${{ vars.DISK_TYPE }} \
@@ -92,5 +92,7 @@ jobs:
           gcloud compute instance-groups managed rolling-action start-update instance-group-manager \
           --version=template="projects/cloud-csye6225-dev/regions/us-east1/instanceTemplates/new-webapp-template" \
           --region=us-east1 
-          
-          gcloud compute instance-groups managed wait-until --stable instance-group-manager --region=us-east1 || exit 1
+
+      - name: Wait for update to finish
+        run: |
+          echo $(gcloud compute instance-groups managed wait-until --stable instance-group-manager --region=us-east1) || exit 1
