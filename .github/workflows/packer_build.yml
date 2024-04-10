@@ -27,7 +27,7 @@ jobs:
           rm -f ./packer/webapp
           cp ./webapp ./packer/
 
-      - name : Set environment variables
+      - name: Set environment variables
         run: |
           echo "POSTGRES_CONN_STR=${{ secrets.POSTGRES_CONN_STR }}" >> ./packer/webapp.env
 
@@ -56,13 +56,8 @@ jobs:
           echo $IMAGE_NAME > scripts/image_name.txt
           echo $IMAGE_NAME
           echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
-
-#      - name: Create startup-script.sh
-#        run: |
           echo "${{ vars.STARTUP_SCRIPT }}" > startup-script.sh
 
-#      - name: Deployment
-#        run: |
           gcloud compute instance-templates create "new-webapp-template" \
               --machine-type=${{ vars.MACHINE_TYPE }} \
               --image=$IMAGE_NAME \
@@ -77,14 +72,14 @@ jobs:
               --service-account=${{ vars.SERVICE_ACCOUNT_EMAIL }} \
               --scopes=${{ vars.SCOPES }} \
               --boot-disk-kms-key=$(gcloud secrets versions access latest --secret="vm-crypto-key-secret")
-          
+
       - name: Configure Managed Instance Group
         run: |
           sleep 5
           gcloud compute instance-groups managed set-instance-template instance-group-manager \
               --template="projects/cloud-csye6225-dev/regions/us-east1/instanceTemplates/new-webapp-template" \
               --region=${{ vars.REGION }}
-            
+
 
       - name: Deploy new instances
         run: |
