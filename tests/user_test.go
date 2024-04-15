@@ -68,10 +68,10 @@ func setupTestRouter(postgresObj *db.PostgreSQL) *gin.Engine {
 		}
 	})
 
-	router.GET("/v1/user", middleware.BasicAuth(userService), userController.GetUser)
-	router.PUT("/v1/user/self", middleware.BasicAuth(userService), userController.UpdateUser)
+	router.GET("/v2/user", middleware.BasicAuth(userService), userController.GetUser)
+	router.PUT("/v2/user/self", middleware.BasicAuth(userService), userController.UpdateUser)
 
-	router.POST("/v1/user", middleware.CheckNoAuthEndpoints(), userController.CreateUser)
+	router.POST("/v2/user", middleware.CheckNoAuthEndpoints(), userController.CreateUser)
 	router.NoRoute(func(context *gin.Context) {
 		context.Data(http.StatusNotFound, "text/plain", []byte{})
 		context.Abort()
@@ -96,7 +96,7 @@ func TestCreateAccount(t *testing.T) {
 	}
 	r, _ := json.Marshal(createAccReq)
 
-	req, err := http.NewRequest("POST", ts.URL+"/v1/user", strings.NewReader(string(r)))
+	req, err := http.NewRequest("POST", ts.URL+"/v2/user", strings.NewReader(string(r)))
 	if err != nil {
 		t.Fatalf("Error while creating request: %v", err)
 	}
@@ -111,7 +111,7 @@ func TestCreateAccount(t *testing.T) {
 	}
 	time.Sleep(1 * time.Second)
 
-	getUserReq, err := http.NewRequest("GET", ts.URL+"/v1/user", nil)
+	getUserReq, err := http.NewRequest("GET", ts.URL+"/v2/user", nil)
 	if err != nil {
 		t.Fatalf("Error while creating request: %v", err)
 	}
@@ -158,7 +158,7 @@ func TestUpdateAccount(t *testing.T) {
 	}
 	r, _ := json.Marshal(createAccReq)
 
-	req, err := http.NewRequest("POST", ts.URL+"/v1/user", strings.NewReader(string(r)))
+	req, err := http.NewRequest("POST", ts.URL+"/v2/user", strings.NewReader(string(r)))
 	if err != nil {
 		t.Fatalf("Error while creating request: %v", err)
 	}
@@ -181,7 +181,7 @@ func TestUpdateAccount(t *testing.T) {
 	}
 	r, _ = json.Marshal(updateAccReq)
 
-	req, err = http.NewRequest("PUT", ts.URL+"/v1/user/self", strings.NewReader(string(r)))
+	req, err = http.NewRequest("PUT", ts.URL+"/v2/user/self", strings.NewReader(string(r)))
 	if err != nil {
 		t.Fatalf("Error while creating request: %v", err)
 	}
@@ -199,7 +199,7 @@ func TestUpdateAccount(t *testing.T) {
 	time.Sleep(1 * time.Second)
 
 	// Getting the updated user account
-	getUserReq, err := http.NewRequest("GET", ts.URL+"/v1/user", nil)
+	getUserReq, err := http.NewRequest("GET", ts.URL+"/v2/user", nil)
 	if err != nil {
 		t.Fatalf("Error while creating request: %v", err)
 	}
