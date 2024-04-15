@@ -37,15 +37,15 @@ func InitializeRouter() *gin.Engine {
 		}
 	})
 
-	router.GET("/v1/user", middleware.BasicAuth(userService), userController.GetUser)
-	router.PUT("/v1/user/self", middleware.BasicAuth(userService), userController.UpdateUser)
+	router.GET("/v2/user", middleware.BasicAuth(userService), userController.GetUser)
+	router.PUT("/v2/user/self", middleware.BasicAuth(userService), userController.UpdateUser)
 
-	router.POST("/v1/user", middleware.CheckNoAuthEndpoints(), userController.CreateUser)
+	router.POST("/v2/user", middleware.CheckNoAuthEndpoints(), userController.CreateUser)
 	router.NoRoute(func(context *gin.Context) {
 		context.Data(http.StatusNotFound, "text/plain", []byte{})
 		context.Abort()
 	})
-	router.GET("/v1/verify-email", userController.VerifyEmail)
+	router.GET("/v2/verify-email", userController.VerifyEmail)
 
 	return router
 }

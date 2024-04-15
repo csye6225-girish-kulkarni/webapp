@@ -27,7 +27,7 @@ func (es *RealEmailService) SendVerificationEmailToQueue(ctx context.Context, us
 	}
 
 	// Prepare the user details and verification link
-	verificationLink := "https://girishkulkarni.me/v1/verify-email?uuid="
+	verificationLink := "https://girishkulkarni.me/v2/verify-email?uuid="
 	log.Info().Str("verificationLink", verificationLink).Msg("Verification Link")
 
 	userDetails := types.EmailVerification{
